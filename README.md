@@ -5,7 +5,11 @@ carrots; carrots win over shy bunnies. Each field holds 25 bunnies in 5 rows of 
 once you've met them all, Bun Bun travels on to a new field. The bunnies-met counter
 counts in multiples of 25 (`2 × 25 + 7 = 57`).
 
+**Play it:** https://daugustgraffam.github.io/bunnymath/
+
 No build step and no dependencies — plain HTML, CSS and JavaScript modules.
+
+The live site deploys from `main` via GitHub Pages; every push updates it.
 
 ## Run locally
 
@@ -35,6 +39,12 @@ npm test
   shelves of bunnies. Pick which pair to multiply first, `(a × b) × c` or
   `a × (b × c)`, then solve in two steps; picking the grouping that keeps step 1
   at 10 or less earns a bonus carrot. Also "move the parentheses" problems
+- **Fence It** — the distributive property: drag (or click, or arrow-key) a fence
+  across a big carrot patch like `7 × 8` to split it into `7 × 5 + 7 × 3`, solve
+  both sides and add. A side of 5 earns a bonus carrot. Also fill-ins like
+  `6 × 7 = 6 × 5 + 6 × ▢`
+- **Carrot Crates** — multiplying by multiples of 10: crates hold 10 carrots, so
+  `4 × 30` is `4 × 3 tens = 12 tens = 120`
 
 Every mode gives a 3-step hint ladder: a nudge, then a visual (skip-count totals or
 a flip), then the answer. First-try answers earn 2 carrots; answers after a hint earn 1.

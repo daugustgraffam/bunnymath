@@ -96,6 +96,12 @@ export function fenceHint(problem, misses, result) {
 
 // ---------- Markup ----------
 
+// Gaps are tinted like the side they're on, so each side reads as one block.
+function gapClass(k, split) {
+  if (split === null) return '';
+  return k === split ? 'fence' : k < split ? 'side-left' : 'side-right';
+}
+
 // Columns of carrots with a gap between each pair; gap k sits after k columns.
 // With `interactive`, the gaps are buttons you click (or drag across) to place the fence.
 export function fencePatchHTML(rows, cols, split = null, { interactive = false } = {}) {
@@ -106,10 +112,10 @@ export function fencePatchHTML(rows, cols, split = null, { interactive = false }
     parts.push(`<div class="fence-col ${side}">${carrots}</div>`);
     if (c === cols - 1) break;
     const k = c + 1;
-    const fence = k === split ? 'fence' : '';
+    const state = gapClass(k, split);
     parts.push(interactive
-      ? `<button type="button" class="fence-gap ${fence}" data-split="${k}" aria-label="Fence after ${plural(k, 'column')}"></button>`
-      : `<div class="fence-gap ${fence}"></div>`);
+      ? `<button type="button" class="fence-gap ${state}" data-split="${k}" aria-label="Fence after ${plural(k, 'column')}"></button>`
+      : `<div class="fence-gap ${state}"></div>`);
   }
   return `<div class="fence-patch" role="img" aria-label="${plural(rows, 'row')} of ${plural(cols, 'carrot')}">${parts.join('')}</div>`;
 }
@@ -141,7 +147,10 @@ function setFence(el, problem, split) {
     col.classList.toggle('side-left', c < split);
     col.classList.toggle('side-right', c >= split);
   });
-  el.querySelectorAll('.fence-gap').forEach((gap) => gap.classList.toggle('fence', Number(gap.dataset.split) === split));
+  el.querySelectorAll('.fence-gap').forEach((gap) => {
+    gap.classList.remove('fence', 'side-left', 'side-right');
+    gap.classList.add(gapClass(Number(gap.dataset.split), split));
+  });
   el.querySelector('.fence-labels').innerHTML = sideLabels(problem, split);
   el.querySelector('.split-button').disabled = false;
 }
