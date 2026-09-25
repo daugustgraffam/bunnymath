@@ -63,6 +63,8 @@ button:disabled { cursor: default; }
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   align-items: center;
   justify-content: space-between;
   max-width: 960px;
@@ -73,6 +75,7 @@ button:disabled { cursor: default; }
 
 .logo {
   margin: 0;
+  white-space: nowrap;
   font-size: 2.2rem;
   color: var(--carrot-dark);
   text-shadow: 2px 2px 0 #fff;
@@ -409,6 +412,9 @@ button:disabled { cursor: default; }
 /* ---------- Top bar counters ---------- */
 
 .counters { display: flex; gap: 10px; }
+/* Counters grow with their numbers; equal-width digits stop them wiggling as counts change. */
+.met-count, .carrot-count { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
 .met-count {
   position: relative;
   display: flex;
@@ -422,6 +428,14 @@ button:disabled { cursor: default; }
 }
 .met-count .mini-bunny { width: 30px; height: 35px; display: block; }
 .met-count.bump { animation: bump 0.45s ease-out; }
+
+/* Phone-narrow: smaller logo and counters so the top bar still fits. */
+@media (max-width: 520px) {
+  .logo { font-size: 1.6rem; }
+  .met-count, .carrot-count { gap: 4px; padding: 6px 12px; font-size: 1.25rem; }
+  .carrot-count .carrot { width: 24px; height: 24px; }
+  .met-count .mini-bunny { width: 22px; height: 26px; }
+}
 
 /* ---------- Play ---------- */
 
