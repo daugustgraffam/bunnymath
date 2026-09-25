@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bunny Math</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="logo">Bunny Math</h1>
+    <div class="counters">
+      <div id="met-count" class="met-count" title="Bunnies met">
+        <span class="met-icon"></span>
+        <span id="met-total">0</span>
+        <span class="visually-hidden">bunnies met</span>
+      </div>
+      <div id="carrot-count" class="carrot-count" aria-live="polite">
+        <span class="carrot-icon"></span>
+        <span id="carrot-total">0</span>
+        <span class="visually-hidden">carrots</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="meadow-screen" class="screen">
+      <div class="field-header">
+        <button id="prev-field" class="nav-button" aria-label="Previous field">‹</button>
+        <div class="field-title">
+          <h2 id="field-name"></h2>
+          <p id="met-math" class="met-math"></p>
+        </div>
+        <button id="next-field" class="nav-button" aria-label="Next field">›</button>
+      </div>
+      <p id="meadow-message" class="meadow-message" aria-live="polite"></p>
+      <div id="meadow" class="meadow">
+        <div id="visitor-panel" class="visitor-panel"></div>
+        <div class="field-grid-wrap">
+          <div id="field-grid" class="field-grid"></div>
+          <p id="grid-caption" class="grid-caption"></p>
+        </div>
+      </div>
+      <h2 class="picker-title">Pick a game</h2>
+      <div id="mode-picker" class="mode-picker"></div>
+    </section>
+
+    <section id="play-screen" class="screen" hidden>
+      <div class="play-top">
+        <button id="quit-round" class="small-button">← Back to meadow</button>
+        <p id="round-progress" class="round-progress"></p>
+      </div>
+      <div class="card">
+        <div class="helper">
+          <div class="helper-bunny-wrap">
+            <div id="helper-bunny" class="bunny helper-bunny"></div>
+            <p id="helper-name" class="helper-name"></p>
+          </div>
+          <p id="speech" class="speech" aria-live="polite"></p>
+        </div>
+        <form id="answer-form" autocomplete="off">
+          <div id="problem" class="problem"></div>
+          <div class="actions">
+            <button id="check-button" class="big-button" type="submit">Check</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="round-end-screen" class="screen" hidden>
+      <div class="card round-end">
+        <div id="round-end-bunny" class="bunny"></div>
+        <h2>Round complete!</h2>
+        <p id="round-summary"></p>
+        <button id="back-to-meadow" class="big-button">Back to the meadow</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="travel" class="travel" hidden>
+    <div id="travel-card" class="travel-card" role="dialog" aria-modal="true" aria-labelledby="travel-title" tabindex="-1">
+      <h2 id="travel-title"></h2>
+      <p id="travel-math" class="travel-math"></p>
+      <div id="travel-scene" class="travel-scene" aria-hidden="true">
+        <div class="travel-layer travel-clouds"></div>
+        <div class="travel-layer travel-hills-far"></div>
+        <div class="travel-layer travel-hills-near"></div>
+        <div class="travel-layer travel-path"></div>
+        <div class="travel-sign"><span id="travel-sign-text" class="travel-sign-board"></span></div>
+        <div id="travel-bunny" class="bunny travel-bunny"></div>
+      </div>
+      <p id="travel-message" class="travel-message" aria-live="polite"></p>
+      <button id="travel-done" class="big-button" hidden></button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <button id="reset-progress" class="link-button">Start over</button>
+  </footer>
+</body>
+</html>
