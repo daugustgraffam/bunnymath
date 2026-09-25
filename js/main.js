@@ -8,6 +8,7 @@ import flip from './modes/flip.js';
 import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
+import { loadStats, saveStats, recordProblem } from './stats.js';
 import {
   loadState, saveState, clearState, earnCarrots, feedVisitor, totalMet,
   HEARTS_TO_FULL, CARROTS_FIRST_TRY, CARROTS_WITH_HELP,
@@ -32,6 +33,7 @@ function getStorage() {
 
 const storage = getStorage();
 let state = loadState(storage);
+const stats = loadStats(storage); // practice history for the grown-up page
 let round = null; // { mode, problems, helpers, index, misses, answered, carrotsEarned, firstTry, token }
 let viewField = state.field; // the field on screen; earlier fields can be revisited
 let traveling = false; // true from the 25th friend until the new field is shown
@@ -419,6 +421,8 @@ function showProblem() {
   const token = {};
   round.token = token;
   round.misses = 0;
+  round.tries = []; // wrong answers on this problem, for the grown-up page
+  round.startedAt = Date.now();
   round.answered = false;
 
   $('round-progress').textContent = `${mode.title} · Question ${round.index + 1} of ${round.problems.length}`;
@@ -469,8 +473,32 @@ function onAnswer(event) {
   else if (problem.choices || $('check-button').hidden) return;
 
   const result = round.mode.check(problem, answer);
-  if (result.correct) onCorrect(el, problem, result, submitter);
-  else onWrong(el, problem, result, submitter);
+  if (result.correct) {
+    onCorrect(el, problem, result, submitter);
+  } else {
+    round.tries.push(submitter?.classList.contains('choice') ? submitter.textContent : Object.values(answer).join(', '));
+    onWrong(el, problem, result, submitter);
+  }
+}
+
+// Adds a finished problem to the practice history. The history is extra;
+// if anything goes wrong here the game carries on without it.
+function recordForGrownups(problem, result) {
+  const { mode } = round;
+  try {
+    recordProblem(stats, {
+      mode: mode.id,
+      text: mode.describe(problem),
+      facts: mode.facts(problem),
+      misses: round.misses,
+      tries: round.tries,
+      bonus: result.bonus ?? 0,
+      ms: Date.now() - round.startedAt,
+    });
+    saveStats(stats, storage);
+  } catch (error) {
+    console.warn('Could not record practice history', error);
+  }
 }
 
 function onCorrect(el, problem, result, submitter) {
@@ -480,6 +508,7 @@ function onCorrect(el, problem, result, submitter) {
   if (round.misses === 0) round.firstTry += 1;
   earnCarrots(state, earned);
   saveState(state, storage);
+  recordForGrownups(problem, result);
 
   for (const input of el.querySelectorAll('input')) {
     input.readOnly = true;

@@ -11,6 +11,15 @@ No build step and no dependencies — plain HTML, CSS and JavaScript modules.
 
 The live site deploys from `main` via GitHub Pages; every push updates it.
 
+## For grown-ups
+
+The **For grown-ups** link at the bottom of the game (or `grownups.html`) shows
+what's been practiced on that device: a 0–10 times-table grid marking each fact
+mastered / learning / needs practice (counting practice from every game), the
+facts that needed help recently, per-game and per-day totals, and the last 25
+answers with any wrong tries. It's read-only; the history lives in its own
+storage slot, apart from the game save.
+
 ## Tablets
 
 Touch screens get an on-screen number pad instead of the system keyboard (add
@@ -62,6 +71,8 @@ a flip), then the answer. First-try answers earn 2 carrots; answers after a hint
 - `js/modes/` — one file per game mode; `facts.js` documents the mode shape
 - `js/problems.js` — shared problem helpers and Quick Facts hints (pure, tested)
 - `js/visuals.js` — markup for answer boxes, burrows and carrot patches
+- `js/stats.js` — practice history for the grown-up page (tested)
+- `js/grownups.js` — the grown-up page
 - `js/world.js` — fields and their 25 bunnies, generated from the field number (tested)
 - `js/rewards.js` — carrots, meeting bunnies, saved progress in `localStorage` (tested)
 - `js/bunnies.js` — SVG art for bunnies, accessories, carrots and hearts

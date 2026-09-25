@@ -144,6 +144,13 @@ export default {
 
   makeRound: (count) => makeFlipRound(count),
 
+  describe({ kind, a, b }) {
+    if (kind === 'missing') return `${a} × ${b} = ${b} × ▢`;
+    if (kind === 'match') return `Which card is ${a} × ${b}?`;
+    return `${a} × ${b} flipped to ${b} × ${a}`;
+  },
+  facts: ({ a, b }) => [[a, b]],
+
   prompt: (problem) => PROMPTS[problem.kind](problem),
 
   render: (problem) => patchPicture(problem) + RENDERERS[problem.kind](problem),

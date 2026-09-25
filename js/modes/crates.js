@@ -70,6 +70,8 @@ export default {
   icon: () => `<span class="crate-icon">${crateSVG().repeat(3)}</span>`,
 
   makeRound: (count) => makeCratesRound(count),
+  describe: ({ kind, a, multiple, answer }) => (kind === 'missing' ? `${a} × ▢ = ${answer}` : `${a} × ${multiple}`),
+  facts: ({ a, tens }) => [[a, tens]],
 
   prompt({ kind, tens, multiple }) {
     if (kind === 'tens') return `Each crate holds 10 carrots, so ${multiple} is ${tens} tens! How many tens, and how many carrots?`;

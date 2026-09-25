@@ -1,0 +1,122 @@
+/* The grown-up page. Builds on styles.css (colors, fonts, buttons). */
+
+body.grownups {
+  -webkit-user-select: text;
+  user-select: text;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* styles.css makes body a flex column; these fill its width instead of shrinking to fit. */
+.gu-header, .gu-main { width: 100%; }
+
+.gu-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+}
+.gu-header h1 { margin: 0; font-size: 1.7rem; color: var(--carrot-dark); }
+.gu-header h1 span { color: var(--ink); font-weight: normal; }
+.gu-header .small-button { text-decoration: none; color: var(--ink); }
+.gu-sub { margin: 4px 0 0; color: var(--ink-soft); }
+
+.gu-main { max-width: 960px; margin: 0 auto; padding: 8px 16px 32px; }
+
+.gu-empty {
+  padding: 14px 18px;
+  background: #fff4dd;
+  border: 2px dashed #d9b98a;
+  border-radius: 14px;
+}
+
+.gu-note { margin: 0 0 12px; color: var(--ink-soft); font-size: 0.95rem; }
+.gu-muted { color: var(--ink-soft); }
+
+/* Summary tiles */
+.gu-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+.gu-tile { padding: 14px 16px; background: var(--cream); border-radius: 16px; }
+.gu-tile-label { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
+.gu-tile-value { margin: 4px 0 0; font-size: 1.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.gu-tile-sub { margin: 2px 0 0; font-size: 0.85rem; color: var(--ink-soft); }
+
+.gu-card { margin-bottom: 16px; padding: 18px 20px; background: var(--cream); border-radius: 20px; }
+.gu-card h2 { margin: 0 0 8px; font-size: 1.3rem; }
+
+/* Times-table grid: status colors always come with a symbol and a legend label */
+.gu-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 12px; font-size: 0.95rem; }
+.gu-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.gu-legend .fact-cell { width: 24px; height: 24px; font-size: 0.85rem; }
+
+.fact-grid-wrap { overflow-x: auto; }
+.fact-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(24px, 44px));
+  gap: 3px;
+  max-width: calc(12 * 44px + 11 * 3px);
+}
+.fact-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.fact-head.corner { color: var(--carrot-dark); }
+
+.fact-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0b0b0b;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+button.fact-cell { cursor: pointer; }
+.fact-cell.selected { border-color: var(--ink); }
+
+/* Reserved status colors (mastered = good, needs practice = serious); learning
+   and not-yet stay neutral since they aren't a status to act on. */
+.status-mastered { background: #0ca30c; }
+.status-shaky { background: #ec835a; }
+.status-learning { background: #d7e7f5; }
+.status-new { background: #ece6dd; }
+
+.fact-detail { min-height: 2.8em; margin: 12px 0 0; font-size: 1rem; }
+
+.gu-shaky { margin: 0; padding-left: 1.2em; line-height: 1.8; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+.gu-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.gu-table th, .gu-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eadfce; white-space: nowrap; }
+.gu-table thead th { font-size: 0.85rem; color: var(--ink-soft); font-weight: 600; }
+.gu-table tbody th { font-weight: 600; }
+.gu-result { display: inline-flex; align-items: center; gap: 6px; }
+.gu-result .fact-cell { width: 22px; height: 22px; font-size: 0.8rem; }
+
+.gu-footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.gu-footer .gu-note { margin: 0; }
+
+@media (min-width: 900px) {
+  .gu-tiles { grid-template-columns: repeat(6, 1fr); }
+}
+@media (max-width: 520px) {
+  .gu-tiles { grid-template-columns: repeat(2, 1fr); }
+  .gu-card { padding: 16px 14px; }
+  .fact-grid { grid-template-columns: repeat(12, minmax(22px, 44px)); gap: 2px; }
+  .fact-cell, .fact-head { font-size: 0.8rem; }
+}

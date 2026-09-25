@@ -174,6 +174,21 @@ export default {
 
   makeRound: (count) => makeFenceRound(count),
 
+  describe(problem) {
+    const { a, b } = problem;
+    if (problem.kind === 'fill') return `${a} × ${b} = ${a} × 5 + ${problem.missing === 'part' ? `${a} × ▢` : '▢'}`;
+    const { left, right } = sides(problem, problem.split);
+    return `${a} × ${b} = ${a} × ${left} + ${a} × ${right}`;
+  },
+
+  // The big fact plus the side(s) the child worked out.
+  facts(problem) {
+    const { a, b } = problem;
+    if (problem.kind === 'fill') return [[a, b], [a, b - FRIENDLY_SIDE]];
+    const { left, right } = sides(problem, problem.split);
+    return [[a, b], [a, left], [a, right]];
+  },
+
   prompt(problem) {
     if (problem.kind === 'fill') return 'The fence split this patch at 5. What goes in the box?';
     return `This patch is ${problem.a} × ${problem.b}. Put up a fence to split it into two easier patches. Tip: a side of 5 is extra easy!`;

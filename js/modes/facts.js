@@ -12,6 +12,8 @@
 //   help?(el, problem, misses)        – optional visual help after a miss
 //   celebrate?(el, problem, result)   – optional extra display once solved
 //   solved(problem, result) → text    – shown with the praise
+//   describe(problem) → text          – short label for the grown-up page ("7 × 8")
+//   facts(problem) → [[a, b], …]      – times-table facts the problem exercised (0–10)
 
 import { makeRound, hintFor, parseWhole, pick } from '../problems.js';
 import { numberInput, burrowsHTML, plural } from '../visuals.js';
@@ -25,6 +27,8 @@ export default {
   icon: () => '<span class="mode-icon-text">3×4</span>',
 
   makeRound: (count) => makeRound(count),
+  describe: ({ a, b }) => `${a} × ${b}`,
+  facts: ({ a, b }) => [[a, b]],
 
   prompt: () => pick(ASKS),
 

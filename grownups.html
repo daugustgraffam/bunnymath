@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bunny Math · For grown-ups</title>
+  <meta name="theme-color" content="#bfe6ff">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="grownups.css">
+  <script type="module" src="js/grownups.js"></script>
+</head>
+<body class="grownups">
+  <header class="gu-header">
+    <div>
+      <h1>Bunny Math <span>· For grown-ups</span></h1>
+      <p class="gu-sub">What's been practiced on this device.</p>
+    </div>
+    <a class="small-button" href="./">← Back to the game</a>
+  </header>
+
+  <main class="gu-main">
+    <p id="gu-empty" class="gu-empty" hidden>No practice yet. Once your child plays a game, their progress shows up here.</p>
+
+    <section class="gu-tiles" id="gu-tiles" aria-label="Summary"></section>
+
+    <section class="gu-card">
+      <h2>Times tables</h2>
+      <p class="gu-note">Each square is one fact, both ways around (7 × 8 and 8 × 7). It counts practice from every game. Tap or hover a square for details.</p>
+      <div class="gu-legend" id="gu-legend"></div>
+      <div class="fact-grid-wrap"><div class="fact-grid" id="fact-grid" role="grid" aria-label="Times table facts, 0 to 10"></div></div>
+      <p class="fact-detail" id="fact-detail" aria-live="polite">Tap a square to see how that fact is going.</p>
+    </section>
+
+    <section class="gu-card">
+      <h2>Needs practice</h2>
+      <div id="gu-shaky"></div>
+    </section>
+
+    <section class="gu-card">
+      <h2>Games</h2>
+      <div class="table-wrap"><table class="gu-table" id="gu-games"></table></div>
+    </section>
+
+    <section class="gu-card">
+      <h2>Last 7 days</h2>
+      <div class="table-wrap"><table class="gu-table" id="gu-days"></table></div>
+    </section>
+
+    <section class="gu-card">
+      <h2>Recent answers</h2>
+      <div class="table-wrap"><table class="gu-table" id="gu-recent"></table></div>
+    </section>
+
+    <footer class="gu-footer">
+      <p class="gu-note">This history stays on this device. Clearing it doesn't touch the bunnies or carrots.</p>
+      <button type="button" class="link-button" id="gu-clear">Clear practice history</button>
+    </footer>
+  </main>
+</body>
+</html>

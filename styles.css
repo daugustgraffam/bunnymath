@@ -889,7 +889,8 @@ button.fence-gap { cursor: col-resize; }
 .round-end h2 { font-size: 2.2rem; margin: 12px 0 4px; }
 .round-end p { font-size: 1.3rem; margin: 0 0 24px; }
 
-.footer { text-align: center; padding: 8px 0 16px; }
+.footer { text-align: center; padding: 8px 0 16px; color: var(--ink-soft); }
+.footer .footer-dot { margin: 0 6px; }
 
 /* ---------- Animations ---------- */
 

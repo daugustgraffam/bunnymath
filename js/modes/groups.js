@@ -76,6 +76,8 @@ export default {
   icon: () => burrowsHTML(2, 2, { item: 'bunny' }),
 
   makeRound: (count) => makeGroupsRound(count),
+  describe: ({ kind, a, b }) => `${a} × ${b} (${kind === 'groups' ? 'burrows' : 'carrot patch'})`,
+  facts: ({ a, b }) => [[a, b]],
 
   prompt: (problem) => KINDS[problem.kind].prompt,
 

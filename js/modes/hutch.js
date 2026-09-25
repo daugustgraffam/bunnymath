@@ -177,6 +177,24 @@ export default {
 
   makeRound: (count) => makeHutchRound(count),
 
+  describe(problem) {
+    const { a, c } = problem;
+    if (problem.kind === 'regroup') {
+      return `${ROUTES[problem.from].grouped(problem)} = ${problem.from === 'left' ? `${a} × ▢` : `▢ × ${c}`}`;
+    }
+    return ROUTES[problem.route].grouped(problem);
+  },
+
+  // The times-table steps worked out; a big step 2 like 16 × 2 isn't a table fact.
+  facts(problem) {
+    const routeKey = problem.kind === 'regroup' ? otherRoute(problem.from) : problem.route;
+    const route = ROUTES[routeKey];
+    const first = route.first(problem);
+    const pairs = [route.firstText(problem).split(' × ').map(Number)];
+    if (problem.kind === 'choose' && first <= 10) pairs.push([first, routeKey === 'left' ? problem.c : problem.a]);
+    return pairs;
+  },
+
   prompt(problem) {
     if (problem.kind === 'regroup') return 'Move the parentheses! What number goes in the box?';
     return 'Which two numbers do you want to multiply first? Pick the easier way!';
