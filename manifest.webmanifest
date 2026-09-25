@@ -1,0 +1,15 @@
+{
+  "name": "Bunny Math",
+  "short_name": "Bunny Math",
+  "description": "Multiplication practice with cute bunnies",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eaf8ff",
+  "theme_color": "#bfe6ff",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

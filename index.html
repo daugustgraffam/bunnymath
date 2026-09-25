@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bunny Math</title>
+  <meta name="theme-color" content="#bfe6ff">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- Add to Home Screen on iPad/iPhone: full-screen, and exempt from Safari's 7-day storage cleanup -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Bunny Math">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="js/main.js"></script>
 </head>
@@ -60,9 +68,20 @@
           <p id="speech" class="speech" aria-live="polite"></p>
         </div>
         <form id="answer-form" autocomplete="off">
-          <div id="problem" class="problem"></div>
-          <div class="actions">
-            <button id="check-button" class="big-button" type="submit">Check</button>
+          <div class="play-body">
+            <div class="play-main">
+              <div id="problem" class="problem"></div>
+              <div class="actions">
+                <button id="check-button" class="big-button" type="submit">Check</button>
+              </div>
+            </div>
+            <!-- On-screen number pad for touch screens, so the system keyboard never covers the game -->
+            <div id="numpad" class="numpad" role="group" aria-label="Number pad" hidden>
+              <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+              <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+              <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+              <button type="button" data-key="back" aria-label="Delete">⌫</button><button type="button" data-key="0">0</button><button type="button" data-key="next" class="key-next" aria-label="Next box">Next<br>box</button>
+            </div>
           </div>
         </form>
       </div>

@@ -1,6 +1,6 @@
 import { pick, shuffle } from './problems.js';
 import { bunnySVG, bushSVG, carrotSVG, heartSVG, miniBunnySVG } from './bunnies.js';
-import { plural } from './visuals.js';
+import { plural, useNumpad } from './visuals.js';
 import { BUN_BUN, FIELD_SIZE, FIELD_COLUMNS } from './world.js';
 import facts from './modes/facts.js';
 import groups from './modes/groups.js';
@@ -310,6 +310,60 @@ function onPickMode(event) {
   if (card && !traveling) startRound(MODES.find((mode) => mode.id === card.dataset.mode));
 }
 
+// ---------- Number pad (touch screens) ----------
+//
+// Touch devices get an on-screen number pad instead of the system keyboard,
+// which would cover half the game. Add ?numpad to the address to try it on a computer.
+
+const USE_NUMPAD = window.matchMedia('(pointer: coarse)').matches
+  || new URLSearchParams(window.location.search).has('numpad');
+let activeInput = null; // the answer box the pad types into
+
+function editableInputs() {
+  return [...$('problem').querySelectorAll('input:not(:disabled):not([readonly])')];
+}
+
+function isEditable(input) {
+  return Boolean(input) && $('problem').contains(input) && !input.disabled && !input.readOnly;
+}
+
+function setActiveInput(input) {
+  activeInput?.classList.remove('active');
+  activeInput = input;
+  input?.classList.add('active');
+  updateNumpad();
+}
+
+// The pad is only live while there's a box to type into.
+function updateNumpad() {
+  if (!USE_NUMPAD) return;
+  const live = editableInputs().length > 0;
+  for (const key of $('numpad').querySelectorAll('button')) key.disabled = !live;
+  if (!live) activeInput?.classList.remove('active');
+}
+
+function onNumpad(event) {
+  const key = event.target.closest('button')?.dataset.key;
+  if (!key) return;
+  const boxes = editableInputs();
+  const input = isEditable(activeInput) ? activeInput : boxes.find((box) => box.value === '') ?? boxes[0];
+  if (!input) return;
+  if (key === 'next') {
+    setActiveInput(boxes[(boxes.indexOf(input) + 1) % boxes.length]);
+    return;
+  }
+  setActiveInput(input);
+  if (key === 'back') {
+    input.value = input.value.slice(0, -1);
+  } else {
+    // Like typing over a selected answer: the first digit into a wrong box starts fresh.
+    if (input.classList.contains('wrong')) input.value = '';
+    if (input.value.length < input.maxLength) input.value += key;
+  }
+  // Modes listen for typing (e.g. the step-2 mirror boxes), so announce the change.
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 // ---------- Practice round ----------
 //
 // The engine is shared by every mode; see js/modes/facts.js for the mode shape.
@@ -368,6 +422,7 @@ function showProblem() {
   round.answered = false;
 
   $('round-progress').textContent = `${mode.title} · Question ${round.index + 1} of ${round.problems.length}`;
+  activeInput = null;
   el.innerHTML = mode.render(problem);
   const check = $('check-button');
   check.textContent = 'Check';
@@ -379,11 +434,15 @@ function showProblem() {
   const isCurrent = () => round?.token === token;
   mode.mount?.(el, problem, {
     say: (text) => isCurrent() && say(text),
+    // Modes show Check when they reveal answer boxes, so wake the number pad too.
     setCheckVisible: (visible) => {
-      if (isCurrent()) check.hidden = !visible;
+      if (!isCurrent()) return;
+      check.hidden = !visible;
+      updateNumpad();
     },
   });
   focusFirst(el);
+  updateNumpad();
 }
 
 function onAnswer(event) {
@@ -437,6 +496,7 @@ function onCorrect(el, problem, result, submitter) {
   if (!el.querySelector('input')) check.focus();
 
   round.mode.celebrate?.(el, problem, result);
+  updateNumpad();
   say(`${pick(PRAISE)} ${round.mode.solved(problem, result)} You earned ${plural(earned, 'carrot')}!`);
   setHelper('happy');
   animate($('helper-bunny'), 'hop');
@@ -506,6 +566,14 @@ $('next-field').addEventListener('click', () => showField(Math.min(state.field, 
 $('mode-picker').addEventListener('click', onPickMode);
 $('answer-form').addEventListener('submit', onAnswer);
 $('problem').addEventListener('input', (event) => event.target.classList.remove('wrong'));
+$('problem').addEventListener('focusin', (event) => {
+  if (USE_NUMPAD && event.target.matches('input')) setActiveInput(event.target);
+});
+$('numpad').addEventListener('click', onNumpad);
+$('numpad').hidden = !USE_NUMPAD;
+useNumpad(USE_NUMPAD);
+// iOS Safari only shows :active press styles when a touchstart listener exists.
+document.addEventListener('touchstart', () => {}, { passive: true });
 $('quit-round').addEventListener('click', showMeadow);
 $('back-to-meadow').addEventListener('click', showMeadow);
 $('reset-progress').addEventListener('click', resetProgress);

@@ -11,6 +11,13 @@ No build step and no dependencies — plain HTML, CSS and JavaScript modules.
 
 The live site deploys from `main` via GitHub Pages; every push updates it.
 
+## Tablets
+
+Touch screens get an on-screen number pad instead of the system keyboard (add
+`?numpad` to the address to try it on a computer). On an iPad or iPhone, use
+Share → **Add to Home Screen**: it opens full-screen like an app, and Safari won't
+clear saved progress after a week away, which it can do for sites in a browser tab.
+
 ## Run locally
 
 Browsers block JavaScript modules opened straight from a `file://` path, so serve the

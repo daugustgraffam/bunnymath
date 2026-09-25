@@ -18,6 +18,20 @@
 
 * { box-sizing: border-box; }
 
+/* Touch screens: no double-tap zoom (kids tap Feed fast), no gray tap flash,
+   and no text selection or long-press menus on the game itself. */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input { -webkit-user-select: text; user-select: text; }
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -100,7 +114,6 @@ button:disabled { cursor: default; }
   box-shadow: 0 5px 0 var(--carrot-dark);
   transition: transform 0.1s;
 }
-.big-button:hover { transform: translateY(-2px); }
 .big-button:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--carrot-dark); }
 
 .small-button {
@@ -514,7 +527,6 @@ button:disabled { cursor: default; }
   border: 4px solid var(--ink-soft);
   border-radius: 18px;
 }
-.choice:hover:not(:disabled) { border-color: var(--carrot); }
 .choice.correct { border-color: var(--good); background: #eaf7e6; }
 .choice.wrong { border-color: var(--pink); background: #fdecef; opacity: 0.6; text-decoration: line-through; }
 .choice:disabled:not(.correct):not(.wrong) { opacity: 0.6; }
@@ -653,7 +665,6 @@ button:disabled { cursor: default; }
   border: 4px solid var(--ink-soft);
   border-radius: 18px;
 }
-.route-button:hover:not(:disabled) { border-color: var(--carrot); }
 .route-button.chosen { border-color: var(--carrot); background: #fff4e6; }
 .route-button:disabled:not(.chosen) { opacity: 0.45; }
 
@@ -718,7 +729,6 @@ button:disabled { cursor: default; }
 .fence-col.side-left, .fence-gap.side-left { background: rgba(255, 205, 120, 0.45); }
 .fence-col.side-right, .fence-gap.side-right { background: rgba(160, 225, 115, 0.45); }
 button.fence-gap { cursor: col-resize; }
-button.fence-gap:not(.side-left):not(.side-right):hover:not(:disabled) { background: rgba(255, 255, 255, 0.25); }
 .fence-gap.fence::before {
   /* the fence: posts with two rails, standing taller than the patch */
   content: "";
@@ -785,7 +795,6 @@ button.fence-gap:not(.side-left):not(.side-right):hover:not(:disabled) { backgro
   box-shadow: 0 5px 0 var(--carrot-dark);
   transition: transform 0.1s;
 }
-.mode-card:hover { transform: translateY(-3px); }
 .mode-card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--carrot-dark); }
 .mode-icon {
   display: flex;
@@ -814,6 +823,50 @@ button.fence-gap:not(.side-left):not(.side-right):hover:not(:disabled) { backgro
 .crate-icon .crate { width: 34px; height: 32px; }
 .mode-title { font-size: 1.4rem; }
 .mode-blurb { font-size: 1rem; color: var(--ink-soft); }
+
+/* The play area: problem on the left, number pad (touch screens) on the right */
+
+.play-body { display: flex; align-items: center; gap: 28px; }
+.play-main { flex: 1; min-width: 0; }
+
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 66px);
+  gap: 10px;
+  padding: 14px;
+  background: #f3e7d6;
+  border-radius: 22px;
+}
+.numpad[hidden] { display: none; }
+.numpad button {
+  height: 66px;
+  font-size: 2rem;
+  background: #fff;
+  border: 3px solid var(--ink-soft);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 #d9cbbd;
+}
+.numpad button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #d9cbbd; background: #fff4e6; }
+.numpad button:disabled { opacity: 0.4; }
+.numpad .key-next { font-size: 0.95rem; line-height: 1.1; }
+
+/* The box the number pad is typing into */
+.answer-input.active:not([readonly]) { border-color: var(--focus); box-shadow: 0 0 0 4px rgba(47, 125, 225, 0.25); }
+
+/* Tablet portrait and narrower: a short, wide pad under the problem
+   (1 2 3 4 5 ⌫ / 6 7 8 9 0 Next) so it fits without scrolling. */
+@media (max-width: 900px) {
+  .play-body { flex-direction: column; gap: 16px; }
+  .numpad { grid-template-columns: repeat(6, 62px); gap: 8px; padding: 10px; }
+  .numpad button { height: 58px; }
+  .numpad [data-key="back"] { grid-row: 1; grid-column: 6; }
+  .numpad [data-key="6"] { grid-row: 2; grid-column: 1; }
+  .numpad [data-key="7"] { grid-row: 2; grid-column: 2; }
+  .numpad [data-key="8"] { grid-row: 2; grid-column: 3; }
+  .numpad [data-key="9"] { grid-row: 2; grid-column: 4; }
+  .numpad [data-key="0"] { grid-row: 2; grid-column: 5; }
+  .numpad [data-key="next"] { grid-row: 2; grid-column: 6; }
+}
 
 /* ---------- Round end ---------- */
 
@@ -886,6 +939,15 @@ button.fence-gap:not(.side-left):not(.side-right):hover:not(:disabled) { backgro
 @keyframes scroll-far { to { background-position-x: -260px, -260px; } }
 @keyframes scroll-near { to { background-position-x: -180px, -180px; } }
 @keyframes scroll-path { to { background-position-x: -80px; } }
+
+/* Hover effects only where there's a real pointer; on touch screens they stick after a tap. */
+@media (hover: hover) {
+  .big-button:hover { transform: translateY(-2px); }
+  .choice:hover:not(:disabled) { border-color: var(--carrot); }
+  .route-button:hover:not(:disabled) { border-color: var(--carrot); }
+  button.fence-gap:not(.side-left):not(.side-right):hover:not(:disabled) { background: rgba(255, 255, 255, 0.25); }
+  .mode-card:hover { transform: translateY(-3px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

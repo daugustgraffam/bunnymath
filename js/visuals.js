@@ -8,8 +8,14 @@ export function plural(n, word, pluralWord = `${word}s`) {
   return `${n} ${n === 1 ? word : pluralWord}`;
 }
 
+// With the on-screen number pad, answer boxes ask for no system keyboard at all.
+let numpadMode = false;
+export function useNumpad(on) {
+  numpadMode = on;
+}
+
 export function numberInput(name, label, { disabled = false } = {}) {
-  return `<input class="answer-input" name="${name}" type="text" inputmode="numeric" maxlength="3"
+  return `<input class="answer-input" name="${name}" type="text" inputmode="${numpadMode ? 'none' : 'numeric'}" maxlength="3"
     autocomplete="off" aria-label="${label}" ${disabled ? 'disabled' : ''}>`;
 }
 
