@@ -10,8 +10,9 @@ import flip from './modes/flip.js';
 import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
+import quiz from './modes/quiz.js';
 
-const MODES = [facts, groups, flip, hutch, fence, crates];
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz];
 const MAX_FACTOR = 10;
 const RECENT_SHOWN = 25;
 const SHAKY_SHOWN = 10;

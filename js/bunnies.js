@@ -168,6 +168,17 @@ export function crateSVG() {
 </svg>`;
 }
 
+// A clipboard with a checklist, for the Practice Test card.
+export function clipboardSVG() {
+  return `<svg class="clipboard" viewBox="0 0 48 56" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="6" width="40" height="48" rx="5" fill="#c8955e" stroke="${OUTLINE}" stroke-width="2.5"/>
+  <rect x="9" y="12" width="30" height="37" rx="2" fill="#fffaf2"/>
+  <rect x="16" y="2" width="16" height="9" rx="3" fill="#9a8f88" stroke="${OUTLINE}" stroke-width="2"/>
+  <path d="M13 21 l3 3 5 -6 M13 31 l3 3 5 -6 M13 41 l3 3 5 -6" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25 22 h10 M25 32 h10 M25 42 h10" stroke="#9a8f88" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`;
+}
+
 export function carrotSVG() {
   return `<svg class="carrot" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
   <path d="M12 8 Q9 2 7 3 M12 8 Q12 1 13 1 M12 8 Q15 2 17 3" fill="none" stroke="#4caf50" stroke-width="2" stroke-linecap="round"/>

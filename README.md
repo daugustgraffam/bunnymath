@@ -62,6 +62,13 @@ npm test
 - **Carrot Crates** — multiplying by multiples of 10: crates hold 10 carrots, so
   `4 × 30` is `4 × 3 tens = 12 tens = 120`
 
+- **Practice Test** — 8 questions in the style of a third-grade assessment on the
+  multiplication properties: which two facts find an array's total, Yes/No "is
+  the Distributive Property used correctly?", pick-all-that-work fact splits,
+  rebuilding a big array from two smaller ones, three-factor and two-part word
+  problems, and fill-in equations (doubles, combining, a 10s fact as two 5s).
+  Original questions with new numbers every time
+
 Every mode gives a 3-step hint ladder: a nudge, then a visual (skip-count totals or
 a flip), then the answer. First-try answers earn 2 carrots; answers after a hint earn 1.
 

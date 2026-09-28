@@ -10,6 +10,7 @@ import flip from '../js/modes/flip.js';
 import hutch from '../js/modes/hutch.js';
 import fence from '../js/modes/fence.js';
 import crates from '../js/modes/crates.js';
+import quiz from '../js/modes/quiz.js';
 
 function fakeStorage() {
   const data = new Map();
@@ -95,7 +96,7 @@ test('history survives a save and load; bad data starts fresh', () => {
 });
 
 test('every game describes its problems and lists times-table facts within 0–10', () => {
-  for (const mode of [facts, groups, flip, hutch, fence, crates]) {
+  for (const mode of [facts, groups, flip, hutch, fence, crates, quiz]) {
     for (let i = 0; i < 50; i++) {
       for (const problem of mode.makeRound(5)) {
         // Choose-a-route and fence problems get their route/split from the child.

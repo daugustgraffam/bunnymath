@@ -788,6 +788,51 @@ button.fence-gap { cursor: col-resize; }
 }
 .crate-group .crate { width: 34px; height: 32px; display: block; }
 
+/* Practice Test */
+
+.word-problem {
+  max-width: 34em;
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.5;
+  text-align: center;
+}
+.statement { margin: 0; font-size: 2.2rem; text-align: center; }
+.wide-choices { grid-template-columns: 1fr; }
+.wide-choices .choice { font-size: 1.6rem; }
+
+.check-options { display: flex; flex-direction: column; gap: 10px; min-width: min(100%, 360px); }
+.check-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px;
+  font-size: 1.6rem;
+  background: #fff;
+  border: 3px solid var(--ink-soft);
+  border-radius: 16px;
+  cursor: pointer;
+}
+.check-option input { width: 30px; height: 30px; accent-color: var(--carrot); cursor: pointer; }
+.check-option:has(input:checked) { border-color: var(--carrot); background: #fff4e6; }
+.check-option.wrong { border-color: var(--pink); background: #fdecef; }
+.check-option.correct { border-color: var(--good); background: #eaf7e6; }
+.check-option.shake { animation: shake 0.4s; }
+
+.stacked-patches { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.stacked-part { position: relative; }
+.patch-label {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  margin-left: 12px;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+  white-space: nowrap;
+  color: var(--carrot-dark);
+}
+
 /* ---------- Mode picker ---------- */
 
 .picker-title { margin: 0 0 12px; font-size: 1.6rem; }
@@ -836,6 +881,12 @@ button.fence-gap { cursor: col-resize; }
 .crate-icon { display: flex; gap: 2px; }
 .crate-icon .crate { width: 34px; height: 32px; }
 .mode-title { font-size: 1.4rem; }
+/* A full-width card (the Practice Test) under the six games */
+.mode-text { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.mode-card.wide { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 18px; }
+.mode-card.wide .mode-icon { height: 60px; }
+.mode-card.wide .mode-text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.mode-icon .clipboard { width: 48px; height: 56px; }
 .mode-blurb { font-size: 1rem; color: var(--ink-soft); }
 
 /* The play area: problem on the left, number pad (touch screens) on the right */

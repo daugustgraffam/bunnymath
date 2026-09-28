@@ -8,13 +8,14 @@ import flip from './modes/flip.js';
 import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
+import quiz from './modes/quiz.js';
 import { loadStats, saveStats, recordProblem } from './stats.js';
 import {
   loadState, saveState, clearState, earnCarrots, feedVisitor, totalMet,
   HEARTS_TO_FULL, CARROTS_FIRST_TRY, CARROTS_WITH_HELP,
 } from './rewards.js';
 
-const MODES = [facts, groups, flip, hutch, fence, crates];
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz];
 const ROUND_LENGTH = 5;
 const PRAISE = ['Yes!', 'Hoppy day!', 'You got it!', 'Carrot-tastic!', 'Great thinking!'];
 const GREETINGS = ['says hi!', 'waves a paw!', 'wiggles their nose!', 'does a happy hop!'];
@@ -300,10 +301,12 @@ function playTravel(completedField, done) {
 
 function renderModePicker() {
   $('mode-picker').innerHTML = MODES.map((mode) => `
-    <button class="mode-card" data-mode="${mode.id}">
+    <button class="mode-card ${mode.wide ? 'wide' : ''}" data-mode="${mode.id}">
       <span class="mode-icon" aria-hidden="true">${mode.icon()}</span>
-      <span class="mode-title">${mode.title}</span>
-      <span class="mode-blurb">${mode.blurb}</span>
+      <span class="mode-text">
+        <span class="mode-title">${mode.title}</span>
+        <span class="mode-blurb">${mode.blurb}</span>
+      </span>
     </button>`).join('');
 }
 
@@ -322,7 +325,7 @@ const USE_NUMPAD = window.matchMedia('(pointer: coarse)').matches
 let activeInput = null; // the answer box the pad types into
 
 function editableInputs() {
-  return [...$('problem').querySelectorAll('input:not(:disabled):not([readonly])')];
+  return [...$('problem').querySelectorAll('input[type="text"]:not(:disabled):not([readonly])')];
 }
 
 function isEditable(input) {
@@ -400,7 +403,7 @@ function focusFirst(el) {
 function startRound(mode) {
   round = {
     mode,
-    problems: mode.makeRound(ROUND_LENGTH),
+    problems: mode.makeRound(mode.roundLength ?? ROUND_LENGTH),
     helpers: roundHelpers(),
     index: 0,
     misses: 0,
@@ -461,14 +464,21 @@ function onAnswer(event) {
   const problem = currentProblem();
   const submitter = event.submitter;
   const inputs = [...el.querySelectorAll('input:not(:disabled)')];
-  const blank = inputs.find((input) => input.value.trim() === '');
+  const textBoxes = inputs.filter((input) => input.type === 'text');
+  const checkboxes = inputs.filter((input) => input.type === 'checkbox');
+  const blank = textBoxes.find((input) => input.value.trim() === '');
   if (blank) {
-    say(inputs.length > 1 ? 'Fill in every box first!' : 'Type a number in the box first!');
+    say(textBoxes.length > 1 ? 'Fill in every box first!' : 'Type a number in the box first!');
     blank.focus();
     return;
   }
+  if (checkboxes.length && !checkboxes.some((box) => box.checked)) {
+    say('Pick at least one answer first!');
+    checkboxes[0].focus();
+    return;
+  }
 
-  const answer = Object.fromEntries(inputs.map((input) => [input.name, input.value]));
+  const answer = Object.fromEntries(inputs.map((input) => [input.name, input.type === 'checkbox' ? input.checked : input.value]));
   if (submitter?.classList.contains('choice')) answer.choice = submitter.value;
   else if (problem.choices || $('check-button').hidden) return;
 
@@ -476,9 +486,19 @@ function onAnswer(event) {
   if (result.correct) {
     onCorrect(el, problem, result, submitter);
   } else {
-    round.tries.push(submitter?.classList.contains('choice') ? submitter.textContent : Object.values(answer).join(', '));
+    round.tries.push(describeAttempt(inputs, submitter));
     onWrong(el, problem, result, submitter);
   }
+}
+
+// A wrong answer as text for the grown-up page: the card picked, the boxes
+// checked, or the numbers typed.
+function describeAttempt(inputs, submitter) {
+  if (submitter?.classList.contains('choice')) return submitter.textContent;
+  return inputs
+    .map((input) => (input.type === 'checkbox' ? input.checked && input.closest('label')?.textContent.trim() : input.value))
+    .filter(Boolean)
+    .join(', ');
 }
 
 // Adds a finished problem to the practice history. The history is extra;
@@ -510,10 +530,15 @@ function onCorrect(el, problem, result, submitter) {
   saveState(state, storage);
   recordForGrownups(problem, result);
 
-  for (const input of el.querySelectorAll('input')) {
+  for (const input of el.querySelectorAll('input[type="text"]')) {
     input.readOnly = true;
     input.classList.remove('wrong');
     input.classList.add('correct');
+  }
+  for (const box of el.querySelectorAll('input[type="checkbox"]')) {
+    box.disabled = true;
+    box.closest('label')?.classList.remove('wrong');
+    if (box.checked) box.closest('label')?.classList.add('correct');
   }
   if (submitter?.classList.contains('choice')) submitter.classList.add('correct');
   for (const choice of el.querySelectorAll('.choice')) choice.disabled = true;
@@ -521,8 +546,8 @@ function onCorrect(el, problem, result, submitter) {
   const check = $('check-button');
   check.hidden = false;
   check.textContent = round.index + 1 < round.problems.length ? 'Next →' : 'Finish →';
-  // Typed answers keep focus in the box so Enter moves on; choice cards hand focus to Next.
-  if (!el.querySelector('input')) check.focus();
+  // Typed answers keep focus in the box so Enter moves on; cards and checkboxes hand focus to Next.
+  if (!el.querySelector('input[type="text"]')) check.focus();
 
   round.mode.celebrate?.(el, problem, result);
   updateNumpad();
@@ -534,16 +559,18 @@ function onCorrect(el, problem, result, submitter) {
 
 function onWrong(el, problem, result, submitter) {
   round.misses += 1;
-  for (const input of el.querySelectorAll('input.wrong')) input.classList.remove('wrong');
+  for (const marked of el.querySelectorAll('input.wrong, label.wrong')) marked.classList.remove('wrong');
   for (const name of result.wrong) {
     if (name === 'choice') {
       submitter.classList.add('wrong');
       submitter.disabled = true;
       continue;
     }
+    // A wrong checkbox marks its whole row; a wrong answer box marks the box.
     const input = el.querySelector(`input[name="${name}"]`);
-    input.classList.add('wrong');
-    animate(input, 'shake');
+    const shown = input.type === 'checkbox' ? input.closest('label') ?? input : input;
+    shown.classList.add('wrong');
+    animate(shown, 'shake');
   }
 
   say(`Not quite. ${round.mode.hint(problem, round.misses, result)}`);
@@ -594,9 +621,12 @@ $('prev-field').addEventListener('click', () => showField(Math.max(0, viewField 
 $('next-field').addEventListener('click', () => showField(Math.min(state.field, viewField + 1)));
 $('mode-picker').addEventListener('click', onPickMode);
 $('answer-form').addEventListener('submit', onAnswer);
-$('problem').addEventListener('input', (event) => event.target.classList.remove('wrong'));
+$('problem').addEventListener('input', (event) => {
+  event.target.classList.remove('wrong');
+  event.target.closest('label')?.classList.remove('wrong');
+});
 $('problem').addEventListener('focusin', (event) => {
-  if (USE_NUMPAD && event.target.matches('input')) setActiveInput(event.target);
+  if (USE_NUMPAD && event.target.matches('input[type="text"]')) setActiveInput(event.target);
 });
 $('numpad').addEventListener('click', onNumpad);
 $('numpad').hidden = !USE_NUMPAD;
