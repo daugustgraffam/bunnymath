@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeQuizRound, checkQuiz, quizHint, KINDS } from '../js/modes/quiz.js';
+import quiz, { makeQuizRound, checkQuiz, quizHint, clueText, story, KINDS } from '../js/modes/quiz.js';
 
 const hasNumber = (text, n) => new RegExp(`(^|[^\\d])${n}([^\\d]|$)`).test(text);
 // "4 × 5 and 4 × 3" → 32
@@ -15,10 +15,10 @@ function many(kind, n = 300) {
   return out;
 }
 
-test('a round is 8 questions, one of each kind', () => {
+test('a round is 10 questions, one of each kind', () => {
   for (let i = 0; i < 50; i++) {
     const round = makeQuizRound();
-    assert.equal(round.length, 8);
+    assert.equal(round.length, 10);
     assert.deepEqual(new Set(round.map((p) => p.kind)), new Set(KINDS));
   }
 });
@@ -97,4 +97,62 @@ test('word problems use sensible numbers', () => {
   for (const p of many('wordSplit')) assert.ok(p.x + p.y <= 10 && p.answer === (p.x + p.y) * p.c);
   for (const p of many('threeFactor')) assert.equal(p.answer, p.a * p.b * p.c);
   for (const p of many('bigArray')) assert.ok(p.m + p.p <= 9);
+});
+
+// Evaluates an expression like "(6 + 4) × 3".
+const evaluate = (text) => Function(`return ${text.replace(/×/g, '*')}`)();
+
+test('match-the-story: exactly one expression matches, and it gives the story\'s answer', () => {
+  for (const p of many('matchStory')) {
+    assert.equal(p.choices.length, 4);
+    assert.equal(new Set(p.choices.map((c) => c.text)).size, 4, p.choices.map((c) => c.text).join(' | '));
+    const right = p.choices.filter((c) => c.correct);
+    assert.equal(right.length, 1);
+    assert.equal(evaluate(right[0].text), p.answer, `${p.shape}: ${right[0].text}`);
+  }
+});
+
+test('match-the-story covers all three shapes', () => {
+  assert.deepEqual(new Set(many('matchStory').map((p) => p.shape)), new Set(['allTimes', 'addThenTimes', 'timesThenAdd']));
+});
+
+test('what\'s next: the right choice uses the sign outside the ( )', () => {
+  for (const p of many('nextStep')) {
+    const right = p.choices.find((c) => c.correct).text;
+    assert.ok(right.includes(p.op), `${p.plain} → ${right}`);
+    assert.equal(evaluate(right), p.answer);
+    assert.equal(evaluate(p.plain), p.answer, 'the next step keeps the same total');
+    const outside = p.statement.match(/<span class="outside-sign">(.)<\/span>/)[1];
+    assert.equal(outside, p.op);
+  }
+});
+
+test('stories: every multiply step is marked with an "each" clue; add clues only on two-part stories', () => {
+  for (const kind of ['threeFactor', 'wordGroups', 'wordSplit', 'matchStory']) {
+    for (const p of many(kind, 100)) {
+      const text = story(p);
+      const plain = clueText(text);
+      assert.doesNotMatch(plain, /\[|\]/, 'no leftover markers');
+      const times = [...text.matchAll(/\[×:([^\]]+)\]/g)].map((m) => m[1]);
+      assert.ok(times.length >= 1, `${kind}: ${text}`);
+      for (const clue of times) assert.match(clue, /each/i, `${kind}: × clue "${clue}"`);
+      const plus = text.includes('[+:');
+      const twoPart = kind === 'wordSplit' || (kind === 'matchStory' && p.shape !== 'allTimes');
+      assert.equal(plus, twoPart, `${kind}: ${text}`);
+      assert.match(clueText(text, true), /class="clue clue-times"/);
+    }
+  }
+});
+
+test('a miss on an add-or-multiply question points to the rule', () => {
+  const [p] = many('threeFactor', 1);
+  assert.match(quizHint(p, 1, checkQuiz(p, { answer: '0' })), /"each" means multiply/);
+  const [split] = many('wordSplit', 1);
+  assert.match(quizHint(split, 1, checkQuiz(split, { answer: '0' })), /same kind of thing, so add/);
+  const [next] = many('nextStep', 1);
+  assert.match(quizHint(next, 1, { correct: false, wrong: ['choice'] }), /sign outside the \( \)/);
+});
+
+test('every question shows the Add or multiply? rules card', () => {
+  for (const p of makeQuizRound()) assert.match(quiz.render(p), /<details class="rules">/);
 });

@@ -1,7 +1,11 @@
 // Practice Test: the kinds of questions on a third-grade assessment about the
 // multiplication properties (arrays, the Distributive Property, three factors,
 // word problems), written fresh with bunny stories and new numbers each time.
-// A round is 8 questions, one of each kind in a random order.
+// A round is 10 questions, one of each kind in a random order.
+//
+// Every question has an "Add or multiply?" rules card; after a miss it opens and
+// the story's clue words light up ("each" → ×, two same-kind amounts joined by
+// "and" → +). Two kinds practice just that decision, with no arithmetic.
 //
 // Kinds:
 //   arrayPick    – a patch of carrots: which two facts find the total?
@@ -12,13 +16,17 @@
 //   wordGroups   – an equal-groups story
 //   wordSplit    – a two-day story: (x + y) × c
 //   equationFill – (a × b) + (a × b) = ▢,  (a × b) + (a × c) = a × ▢,  10s as two 5s
+//   matchStory   – which expression matches the story? (all ×, add then ×, × then add)
+//   nextStep     – (4 × 2) × 3: you did 4 × 2 = 8. Next is 8 × 3 or 8 + 3?
 
 import { randomInt, shuffle, pick, parseWhole, hintFor, skipCountHint } from '../problems.js';
 import { numberInput, patchHTML, plural } from '../visuals.js';
 import { clipboardSVG } from '../bunnies.js';
 import { makeTriple, easyRoutes, ROUTES } from './hutch.js';
 
-export const KINDS = ['arrayPick', 'distYesNo', 'selectAll', 'bigArray', 'threeFactor', 'wordGroups', 'wordSplit', 'equationFill'];
+export const KINDS = [
+  'arrayPick', 'distYesNo', 'selectAll', 'bigArray', 'threeFactor', 'wordGroups', 'wordSplit', 'equationFill', 'matchStory', 'nextStep',
+];
 const NAMES = ['Bun Bun', 'Clover', 'Hazel', 'Pip', 'Biscuit', 'Juniper', 'Maple', 'Nutmeg', 'Poppy', 'Pepper'];
 
 const twoFacts = (p, q, r, s) => ({ text: `${p} × ${q} and ${r} × ${s}`, value: p * q + r * s });
@@ -119,11 +127,14 @@ function makeBigArray(rand) {
   }
 }
 
+// Story clue words: [×:each bag] marks a multiply clue, [+:3 laps in the morning] an
+// add clue. They read as plain text until a child needs the hint (see clueText).
+// Every multiply step in a story says "each", so the rule "each means ×" holds.
 const THREE_FACTOR_STORIES = [
-  ({ name, a, b, c }) => `${name} has ${a} garden beds. Each bed has ${b} rows. Each row has ${c} carrots. How many carrots are in the garden?`,
-  ({ name, a, b, c }) => `${name} puts ${c} carrots in each bag. ${b} bags fit in a basket. There are ${a} baskets on the wagon. How many carrots are on the wagon?`,
-  ({ a, b, c }) => `The burrow pantry has ${a} shelves. Each shelf has ${b} jars. Each jar holds ${c} berries. How many berries are in the pantry?`,
-  ({ name, a, b, c }) => `${name} bakes ${c} muffins in each pan. ${b} pans fit on a tray. There are ${a} trays. How many muffins are there?`,
+  ({ name, a, b, c }) => `${name} has ${a} garden beds. [×:Each bed] has ${b} rows. [×:Each row] has ${c} carrots. How many carrots are in the garden?`,
+  ({ name, a, b, c }) => `${name} puts ${c} carrots in [×:each bag]. ${b} bags go in [×:each basket]. There are ${a} baskets on the wagon. How many carrots are on the wagon?`,
+  ({ a, b, c }) => `The burrow pantry has ${a} shelves. [×:Each shelf] has ${b} jars. [×:Each jar] holds ${c} berries. How many berries are in the pantry?`,
+  ({ name, a, b, c }) => `${name} bakes ${c} muffins in [×:each pan]. ${b} pans fit on [×:each tray]. There are ${a} trays. How many muffins are there?`,
 ];
 
 function makeThreeFactor(rand) {
@@ -133,9 +144,9 @@ function makeThreeFactor(rand) {
 }
 
 const GROUP_STORIES = [
-  ({ name, a, b }) => `${name} has ${a} baskets. Each basket has ${b} carrots. How many carrots does ${name} have?`,
-  ({ a, b }) => `There are ${a} burrows. ${b} bunnies live in each burrow. How many bunnies are there?`,
-  ({ name, a, b }) => `${name} planted ${a} rows of flowers with ${b} flowers in each row. How many flowers did ${name} plant?`,
+  ({ name, a, b }) => `${name} has ${a} baskets. [×:Each basket] has ${b} carrots. How many carrots does ${name} have?`,
+  ({ a, b }) => `There are ${a} burrows. ${b} bunnies live in [×:each burrow]. How many bunnies are there?`,
+  ({ name, a, b }) => `${name} planted ${a} rows of flowers with ${b} flowers in [×:each row]. How many flowers did ${name} plant?`,
 ];
 
 function makeWordGroups(rand) {
@@ -144,11 +155,27 @@ function makeWordGroups(rand) {
   return { kind: 'wordGroups', a, b, answer: a * b, story: randomInt(0, GROUP_STORIES.length - 1, rand), name: pick(NAMES, rand) };
 }
 
+// `unit` is singular; plural() adds the s ("1 lap", "3 laps").
 const SPLIT_STORIES = [
-  { unit: 'rows', text: ({ name, x, y, c }) => `A garden row holds ${c} carrots. ${name} planted ${x} rows on Monday and ${y} rows on Tuesday. How many carrots did ${name} plant?` },
-  { unit: 'laps', text: ({ name, x, y, c }) => `Each lap around the meadow is ${c} hops. ${name} hopped ${x} laps in the morning and ${y} laps after lunch. How many hops is that?` },
-  { unit: 'bags', text: ({ name, x, y, c }) => `A bag of carrot seeds costs $${c}. ${name} bought ${x} bags on Saturday and ${y} bags on Sunday. How many dollars did ${name} spend?` },
+  { unit: 'row', text: ({ name, x, y, c }) => `[×:Each garden row] holds ${c} carrots. ${name} planted [+:${plural(x, 'row')} on Monday] and [+:${plural(y, 'row')} on Tuesday]. How many carrots did ${name} plant?` },
+  { unit: 'lap', text: ({ name, x, y, c }) => `[×:Each lap] around the meadow is ${c} hops. ${name} hopped [+:${plural(x, 'lap')} in the morning] and [+:${plural(y, 'lap')} after lunch]. How many hops is that?` },
+  { unit: 'bag', text: ({ name, x, y, c }) => `[×:Each bag] of carrot seeds costs $${c}. ${name} bought [+:${plural(x, 'bag')} on Saturday] and [+:${plural(y, 'bag')} on Sunday]. How many dollars did ${name} spend?` },
 ];
+
+// Equal groups plus a few extra: (a × b) + e.
+const EXTRA_STORIES = [
+  ({ name, a, b, e }) => `${name} has ${a} bags with ${b} carrots in [×:each bag]. ${name} also has [+:${e} more carrots] in a pocket. How many carrots does ${name} have?`,
+  ({ a, b, e }) => `The garden has ${a} rows with ${b} tulips in [×:each row], [+:and ${e} more tulips] by the gate. How many tulips are there?`,
+];
+
+// Plain story text, or with the clue words highlighted and tagged × or +.
+export function clueText(text, highlight = false) {
+  return text.replace(/\[([×+]):([^\]]+)\]/g, (_, sign, words) => {
+    if (!highlight) return words;
+    const job = sign === '×' ? 'times' : 'plus';
+    return `<mark class="clue clue-${job}">${words}<span class="clue-tag" aria-label="${sign === '×' ? 'multiply' : 'add'} clue">${sign}</span></mark>`;
+  });
+}
 
 function makeWordSplit(rand) {
   for (;;) {
@@ -181,6 +208,76 @@ function makeEquationFill(rand) {
   return { kind: 'equationFill', variant, n, answer: 10 * n };
 }
 
+// Which expression matches the story? Three story shapes, each with the
+// same three wrong turns: adding where it should multiply, and the reverse.
+function makeMatchStory(rand) {
+  const shape = pick(['allTimes', 'addThenTimes', 'timesThenAdd'], rand);
+  const name = pick(NAMES, rand);
+  let storyText; let right; let wrong; let answer; let extra = {};
+  if (shape === 'allTimes') {
+    const { a, b, c } = makeTriple(rand);
+    storyText = pick(THREE_FACTOR_STORIES, rand)({ name, a, b, c });
+    right = `${a} × ${b} × ${c}`;
+    wrong = [`${a} + ${b} + ${c}`, `(${a} + ${b}) × ${c}`, `(${a} × ${b}) + ${c}`];
+    answer = a * b * c;
+    extra = { a, b, c };
+  } else if (shape === 'addThenTimes') {
+    const { x, y, c } = makeWordSplit(rand);
+    const split = pick(SPLIT_STORIES, rand);
+    storyText = split.text({ name, x, y, c });
+    right = `(${x} + ${y}) × ${c}`;
+    wrong = [`${x} × ${y} × ${c}`, `${x} + ${y} + ${c}`, `(${x} × ${y}) + ${c}`];
+    answer = (x + y) * c;
+    extra = { x, y, c, unit: split.unit };
+  } else {
+    const a = randomInt(2, 6, rand);
+    const b = randomInt(2, 9, rand);
+    const e = randomInt(1, 9, rand);
+    storyText = pick(EXTRA_STORIES, rand)({ name, a, b, e });
+    right = `(${a} × ${b}) + ${e}`;
+    wrong = [`(${a} + ${b}) × ${e}`, `${a} × ${b} × ${e}`, `${a} + ${b} + ${e}`];
+    answer = a * b + e;
+    extra = { a, b, e };
+  }
+  const choices = shuffle([{ text: right, correct: true }, ...wrong.map((text) => ({ text, correct: false }))], rand);
+  return { kind: 'matchStory', shape, storyText, right, answer, choices, ...extra };
+}
+
+// After the ( ), what's next? The sign outside the ( ) decides.
+function makeNextStep(rand) {
+  const form = pick(['assocLeft', 'assocRight', 'distrib'], rand);
+  const sign = (s) => `<span class="outside-sign">${s}</span>`;
+  if (form === 'distrib') {
+    const a = randomInt(2, 6, rand);
+    const b = randomInt(2, 5, rand);
+    const c = randomInt(2, 5, rand);
+    const [x, y] = [a * b, a * c];
+    return {
+      kind: 'nextStep', form, a, b, c, op: '+', answer: x + y,
+      plain: `(${a} × ${b}) + (${a} × ${c})`,
+      statement: `(${a} × ${b}) ${sign('+')} (${a} × ${c})`,
+      done: `${a} × ${b} = ${x} and ${a} × ${c} = ${y}.`,
+      right: `${x} + ${y}`,
+      choices: shuffle([{ text: `${x} + ${y}`, correct: true }, { text: `${x} × ${y}`, correct: false }], rand),
+    };
+  }
+  const { a, b, c } = makeTriple(rand);
+  const left = form === 'assocLeft';
+  const first = left ? a * b : b * c;
+  const other = left ? c : a;
+  const pair = left ? `${a} × ${b}` : `${b} × ${c}`;
+  const right = left ? `${first} × ${c}` : `${a} × ${first}`;
+  const wrongText = left ? `${first} + ${c}` : `${a} + ${first}`;
+  return {
+    kind: 'nextStep', form, a, b, c, op: '×', answer: first * other,
+    plain: left ? `(${a} × ${b}) × ${c}` : `${a} × (${b} × ${c})`,
+    statement: left ? `(${a} × ${b}) ${sign('×')} ${c}` : `${a} ${sign('×')} (${b} × ${c})`,
+    done: `${pair} = ${first}.`,
+    right,
+    choices: shuffle([{ text: right, correct: true }, { text: wrongText, correct: false }], rand),
+  };
+}
+
 const MAKERS = {
   arrayPick: makeArrayPick,
   distYesNo: makeDistYesNo,
@@ -190,6 +287,8 @@ const MAKERS = {
   wordGroups: makeWordGroups,
   wordSplit: makeWordSplit,
   equationFill: makeEquationFill,
+  matchStory: makeMatchStory,
+  nextStep: makeNextStep,
 };
 
 export function makeQuizRound(count = KINDS.length, rand = Math.random) {
@@ -202,7 +301,9 @@ export function makeQuizRound(count = KINDS.length, rand = Math.random) {
 export function checkQuiz(problem, input) {
   switch (problem.kind) {
     case 'arrayPick':
-    case 'distYesNo': {
+    case 'distYesNo':
+    case 'matchStory':
+    case 'nextStep': {
       const correct = Boolean(problem.choices[Number(input.choice)]?.correct);
       return { correct, wrong: correct ? [] : ['choice'] };
     }
@@ -240,6 +341,13 @@ function single(input, expected) {
 }
 
 // ---------- Hints: a nudge, then a strategy, then the answer ----------
+
+function threeFactorFacts(p) {
+  const route = easyRoutes(p)[0];
+  const [x, y] = ROUTES[route].firstText(p).split(' × ').map(Number);
+  const first = x * y;
+  return first <= 10 ? [[x, y], [first, route === 'left' ? p.c : p.a]] : [[x, y]];
+}
 
 function threeFactorPlan(problem) {
   const route = easyRoutes(problem)[0];
@@ -279,22 +387,37 @@ export function quizHint(problem, misses, result) {
     const plan = threeFactorPlan(problem);
     if (misses >= 3) return `${plan.pair} = ${plan.first}, and ${plan.second} = ${problem.answer}.`;
     if (misses === 2) return `Try ${plan.pair} first. Then multiply by the last number.`;
-    return 'Multiply two of the numbers first, then the third. Which two are easiest?';
+    return 'Look at the clue words: each "each" means multiply, so all three numbers get multiplied. No adding! Which two are easiest to do first?';
   }
-  if (kind === 'wordGroups') return hintFor(problem, misses);
+  if (kind === 'wordGroups') {
+    return misses === 1 ? `"Each" means equal groups, so multiply. ${hintFor(problem, 1)}` : hintFor(problem, misses);
+  }
   if (kind === 'wordSplit') {
     const { x, y, c } = problem;
     const unit = SPLIT_STORIES[problem.story].unit;
     if (misses >= 3) return `(${x} + ${y}) × ${c} = ${x + y} × ${c} = ${problem.answer}. That's also ${x} × ${c} + ${y} × ${c}!`;
-    if (misses === 2) return `${x} + ${y} = ${x + y} ${unit}. What is ${x + y} × ${c}?`;
-    return `Find how many ${unit} in all first, then multiply by ${c}.`;
+    if (misses === 2) return `${x} + ${y} = ${plural(x + y, unit)}. What is ${x + y} × ${c}?`;
+    return `Look at the clue words. ${plural(x, unit)} and ${plural(y, unit)} are the same kind of thing, so add them. Then "each" means multiply by ${c}.`;
+  }
+  if (kind === 'matchStory') {
+    if (misses >= 3) return `It's ${problem.right}.`;
+    if (misses === 2) {
+      if (problem.shape === 'allTimes') return 'Every number is "in each" something, so they all get multiplied. No adding!';
+      if (problem.shape === 'addThenTimes') return `${problem.x} and ${problem.y} are both ${problem.unit}s, so add them. Then "each" means × ${problem.c}.`;
+      return `"Each" makes equal groups: ${problem.a} × ${problem.b}. The ${problem.e} extra get added on.`;
+    }
+    return 'Find the clue words. "Each" means equal groups, so multiply. Two amounts of the same kind joined by "and" get added.';
+  }
+  if (kind === 'nextStep') {
+    if (misses >= 2) return `The sign outside the ( ) is ${problem.op}, so it's ${problem.right}.`;
+    return 'Look at the sign outside the ( ). That sign tells you what to do next.';
   }
   // equationFill
   if (problem.variant === 'double') {
     const { a, b } = problem;
     if (misses >= 3) return `${a} × ${b} = ${a * b}, and ${a * b} + ${a * b} = ${problem.expected}.`;
     if (misses === 2) return `${a} × ${b} = ${a * b}. Now add it twice: ${a * b} + ${a * b}.`;
-    return `That's ${a} × ${b} two times. What is ${a} × ${b}?`;
+    return `Do each ( ) first: ${a} × ${b}. The sign between the ( ) is +, so then add the two answers.`;
   }
   if (problem.variant === 'combine') {
     const { a, b, c } = problem;
@@ -310,14 +433,37 @@ export function quizHint(problem, misses, result) {
 
 // ---------- Markup ----------
 
-function story(problem) {
+// A story with its clue markers (see clueText).
+export function story(problem) {
   switch (problem.kind) {
     case 'threeFactor': return THREE_FACTOR_STORIES[problem.story](problem);
     case 'wordGroups': return GROUP_STORIES[problem.story](problem);
     case 'wordSplit': return SPLIT_STORIES[problem.story].text(problem);
+    case 'matchStory': return problem.storyText;
     default: return '';
   }
 }
+
+const storyParagraph = (p) => `<p class="word-problem story">${clueText(story(p))}</p>`;
+
+// The "Add or multiply?" card under every question.
+const RULES = `
+  <details class="rules">
+    <summary>Add or multiply? <span class="rules-tap">Tap for the rules</span></summary>
+    <ol class="rules-list">
+      <li><span class="rule-badge">( )</span><span><strong>Do the ( ) first.</strong> Then do what the sign
+        <em>outside</em> the ( ) says: (2 × 3) <b>×</b> 4 → 6 × 4, but (3 × 4) <b>+</b> (3 × 2) → 12 + 6.</span></li>
+      <li><span class="rule-badge times">×</span><span><strong>Multiply for equal groups.</strong> Clue words:
+        <em>each, every, per, in a, on a</em>. "3 carrots in <em>each</em> bag."</span></li>
+      <li><span class="rule-badge plus">+</span><span><strong>Add to put together amounts of the same kind.</strong>
+        "6 laps <em>and</em> 2 laps" are both laps, so add them.</span></li>
+      <li><span class="rule-badge">✓</span><span><strong>Only × signs? Only multiply.</strong> Multiply any two
+        first. The answer is the same either way!</span></li>
+    </ol>
+  </details>`;
+
+// Kinds where adding vs multiplying is the question, so a miss opens the rules.
+const RULE_KINDS = new Set(['threeFactor', 'wordGroups', 'wordSplit', 'matchStory', 'nextStep', 'equationFill', 'distYesNo']);
 
 function stackedPatches(topRows, bottomRows, cols, labels) {
   return `<div class="stacked-patches">
@@ -356,9 +502,17 @@ const RENDERERS = {
       <label class="blank">${numberInput('cols', 'In each row')}<span class="caption">in each row</span></label><span>=</span>
       <label class="blank">${numberInput('total', 'Carrots')}<span class="caption">carrots</span></label>
     </div>`,
-  threeFactor: (p) => `<p class="word-problem">${story(p)}</p>${answerRow()}`,
-  wordGroups: (p) => `<p class="word-problem">${story(p)}</p>${answerRow()}`,
-  wordSplit: (p) => `<p class="word-problem">${story(p)}</p>${answerRow()}`,
+  threeFactor: (p) => `${storyParagraph(p)}${answerRow()}`,
+  wordGroups: (p) => `${storyParagraph(p)}${answerRow()}`,
+  wordSplit: (p) => `${storyParagraph(p)}${answerRow()}`,
+  matchStory: (p) => `
+    ${storyParagraph(p)}
+    <p class="word-problem ask">Which one matches the story?</p>
+    ${choiceButtons(p.choices)}`,
+  nextStep: (p) => `
+    <p class="statement">${p.statement}</p>
+    <p class="word-problem">${p.done} What do you do next?</p>
+    ${choiceButtons(p.choices)}`,
   equationFill(p) {
     if (p.variant === 'tens') {
       return `
@@ -383,6 +537,8 @@ const PROMPTS = {
   wordGroups: 'Read carefully. What are the groups?',
   wordSplit: 'Read carefully. There are two parts to put together.',
   equationFill: 'What number makes it true?',
+  matchStory: 'Which one matches the story? You don’t have to solve it!',
+  nextStep: 'Look at the sign outside the ( ).',
 };
 
 export default {
@@ -404,6 +560,8 @@ export default {
       case 'threeFactor': return `Story: ${p.a} × ${p.b} × ${p.c}`;
       case 'wordGroups': return `Story: ${p.a} × ${p.b}`;
       case 'wordSplit': return `Story: (${p.x} + ${p.y}) × ${p.c}`;
+      case 'matchStory': return `Which expression: ${p.right}`;
+      case 'nextStep': return `What's next: ${p.plain}`;
       default:
         if (p.variant === 'tens') return `10 × ${p.n} as two 5s facts`;
         return p.variant === 'double' ? `(${p.a} × ${p.b}) + (${p.a} × ${p.b}) = ▢` : `(${p.a} × ${p.b}) + (${p.a} × ${p.c}) = ${p.a} × ▢`;
@@ -416,14 +574,17 @@ export default {
       case 'distYesNo':
       case 'selectAll': return [[p.a, p.b]];
       case 'bigArray': return [[p.m, p.n], [p.p, p.n], [p.m + p.p, p.n]];
-      case 'threeFactor': {
-        const route = easyRoutes(p)[0];
-        const [x, y] = ROUTES[route].firstText(p).split(' × ').map(Number);
-        const first = x * y;
-        return first <= 10 ? [[x, y], [first, route === 'left' ? p.c : p.a]] : [[x, y]];
-      }
+      case 'threeFactor': return threeFactorFacts(p);
       case 'wordGroups': return [[p.a, p.b]];
       case 'wordSplit': return [[p.x + p.y, p.c], [p.x, p.c], [p.y, p.c]];
+      case 'matchStory':
+        if (p.shape === 'allTimes') return threeFactorFacts(p);
+        return p.shape === 'addThenTimes' ? [[p.x + p.y, p.c]] : [[p.a, p.b]];
+      case 'nextStep': {
+        if (p.form === 'distrib') return [[p.a, p.b], [p.a, p.c]];
+        const [x, y, other] = p.form === 'assocLeft' ? [p.a, p.b, p.c] : [p.b, p.c, p.a];
+        return x * y <= 10 ? [[x, y], [x * y, other]] : [[x, y]];
+      }
       default:
         if (p.variant === 'tens') return [[5, p.n], [10, p.n]];
         return p.variant === 'double' ? [[p.a, p.b]] : [[p.a, p.b], [p.a, p.c], [p.a, p.b + p.c]];
@@ -431,7 +592,7 @@ export default {
   },
 
   prompt: (p) => PROMPTS[p.kind],
-  render: (p) => RENDERERS[p.kind](p),
+  render: (p) => RENDERERS[p.kind](p) + RULES,
   check: checkQuiz,
   hint: quizHint,
 
@@ -440,6 +601,12 @@ export default {
     if (problem.kind === 'arrayPick' && misses >= 2) {
       el.querySelector('.quiz-picture').innerHTML = stackedPatches(problem.top, problem.bottom, problem.cols, misses >= 3);
     }
+    if (!RULE_KINDS.has(problem.kind)) return;
+    // Add or multiply: open the rules, light up the story's clue words, circle the outside sign.
+    el.querySelector('details.rules').open = true;
+    const storyEl = el.querySelector('.word-problem.story');
+    if (storyEl) storyEl.innerHTML = clueText(story(problem), true);
+    el.querySelector('.statement')?.classList.add('show-sign');
   },
 
   solved(p) {
@@ -451,6 +618,11 @@ export default {
       case 'threeFactor': return `${p.a} × ${p.b} × ${p.c} = ${p.answer}.`;
       case 'wordGroups': return `${p.a} × ${p.b} = ${p.answer}.`;
       case 'wordSplit': return `(${p.x} + ${p.y}) × ${p.c} = ${p.answer}.`;
+      case 'matchStory':
+        if (p.shape === 'allTimes') return `Every "each" means ×, so it's ${p.right}.`;
+        if (p.shape === 'addThenTimes') return `Add the ${p.unit}s, then × for "each": ${p.right}.`;
+        return `× for the equal groups, then + the extras: ${p.right}.`;
+      case 'nextStep': return `The sign outside the ( ) is ${p.op}, so ${p.op === '+' ? 'add' : 'multiply'}: ${p.right} = ${p.answer}.`;
       default:
         if (p.variant === 'tens') return `5 × ${p.n} + 5 × ${p.n} = 10 × ${p.n} = ${p.answer}.`;
         return p.variant === 'double' ? `Two ${p.a} × ${p.b}s make ${p.expected}.` : `${p.a} × ${p.b + p.c} = ${p.answer}, the same as both parts added up!`;
