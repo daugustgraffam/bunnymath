@@ -9,13 +9,23 @@ import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
 import quiz from './modes/quiz.js';
+import share from './modes/share.js';
+import homes from './modes/homes.js';
+import hopback from './modes/hopback.js';
+import family from './modes/family.js';
+import divfacts from './modes/divfacts.js';
 import { loadStats, saveStats, recordProblem } from './stats.js';
 import {
   loadState, saveState, clearState, earnCarrots, feedVisitor, totalMet,
   HEARTS_TO_FULL, CARROTS_FIRST_TRY, CARROTS_WITH_HELP,
 } from './rewards.js';
 
-const MODES = [facts, groups, flip, hutch, fence, crates, quiz];
+// Games in the order they appear. A mode's `subject` ('multiply' unless it
+// says 'divide') decides which side of the × / ÷ switch it shows on.
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz, share, homes, hopback, family, divfacts];
+const SUBJECTS = ['multiply', 'divide'];
+const SUBJECT_KEY = 'bunnymath.subject';
+const subjectOf = (mode) => mode.subject ?? 'multiply';
 const ROUND_LENGTH = 5;
 const PRAISE = ['Yes!', 'Hoppy day!', 'You got it!', 'Carrot-tastic!', 'Great thinking!'];
 const GREETINGS = ['says hi!', 'waves a paw!', 'wiggles their nose!', 'does a happy hop!'];
@@ -299,8 +309,42 @@ function playTravel(completedField, done) {
   };
 }
 
+// × or ÷: which set of games the meadow shows. Remembered on this device; the
+// meadow, carrots and bunnies are shared by both.
+let subject = loadSubject();
+
+function loadSubject() {
+  try {
+    const saved = storage?.getItem(SUBJECT_KEY);
+    return SUBJECTS.includes(saved) ? saved : 'multiply';
+  } catch {
+    return 'multiply';
+  }
+}
+
+function setSubject(next) {
+  if (!SUBJECTS.includes(next) || next === subject) return;
+  subject = next;
+  try {
+    storage?.setItem(SUBJECT_KEY, subject);
+  } catch {
+    // Just won't be remembered.
+  }
+  renderModePicker();
+}
+
+function renderSubjectSwitch() {
+  for (const button of $('subject-switch').querySelectorAll('button')) {
+    const on = button.dataset.subject === subject;
+    button.setAttribute('aria-checked', String(on));
+    button.classList.toggle('on', on);
+  }
+  $('picker-title').textContent = subject === 'divide' ? 'Pick a division game' : 'Pick a multiplication game';
+}
+
 function renderModePicker() {
-  $('mode-picker').innerHTML = MODES.map((mode) => `
+  renderSubjectSwitch();
+  $('mode-picker').innerHTML = MODES.filter((mode) => subjectOf(mode) === subject).map((mode) => `
     <button class="mode-card ${mode.wide ? 'wide' : ''}" data-mode="${mode.id}">
       <span class="mode-icon" aria-hidden="true">${mode.icon()}</span>
       <span class="mode-text">
@@ -508,6 +552,7 @@ function recordForGrownups(problem, result) {
   try {
     recordProblem(stats, {
       mode: mode.id,
+      subject: subjectOf(mode),
       text: mode.describe(problem),
       facts: mode.facts(problem),
       misses: round.misses,
@@ -620,6 +665,10 @@ $('meadow').addEventListener('click', onMeadowClick);
 $('prev-field').addEventListener('click', () => showField(Math.max(0, viewField - 1)));
 $('next-field').addEventListener('click', () => showField(Math.min(state.field, viewField + 1)));
 $('mode-picker').addEventListener('click', onPickMode);
+$('subject-switch').addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-subject]');
+  if (button) setSubject(button.dataset.subject);
+});
 $('answer-form').addEventListener('submit', onAnswer);
 $('problem').addEventListener('input', (event) => {
   event.target.classList.remove('wrong');
@@ -636,6 +685,9 @@ document.addEventListener('touchstart', () => {}, { passive: true });
 $('quit-round').addEventListener('click', showMeadow);
 $('back-to-meadow').addEventListener('click', showMeadow);
 $('reset-progress').addEventListener('click', resetProgress);
+
+// Always load the newest version together, and keep playing offline (see sw.js).
+navigator.serviceWorker?.register('sw.js').catch(() => {});
 
 renderModePicker();
 showMeadow();

@@ -1,7 +1,9 @@
 // The grown-up page: a read-only view of the practice history (stats.js) and
 // the game save (rewards.js) on this device.
 
-import { loadStats, clearStats, factKey, factStatus, dayKey, MASTERED_STREAK } from './stats.js';
+import {
+  loadStats, clearStats, factKey, divFactKey, isDivFactKey, factStatus, dayKey, MASTERED_STREAK,
+} from './stats.js';
 import { loadState, totalMet } from './rewards.js';
 import { FIELD_SIZE } from './world.js';
 import facts from './modes/facts.js';
@@ -11,9 +13,39 @@ import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
 import quiz from './modes/quiz.js';
+import share from './modes/share.js';
+import homes from './modes/homes.js';
+import hopback from './modes/hopback.js';
+import family from './modes/family.js';
+import divfacts from './modes/divfacts.js';
 
-const MODES = [facts, groups, flip, hutch, fence, crates, quiz];
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz, share, homes, hopback, family, divfacts];
 const MAX_FACTOR = 10;
+const TIMES_FACTS = ((MAX_FACTOR + 1) * (MAX_FACTOR + 2)) / 2; // 0×0 … 10×10, each pair once
+const DIVISION_FACTS = MAX_FACTOR * (MAX_FACTOR + 1); // ÷1 … ÷10, answers 0 … 10
+
+// The facts grid shows one subject at a time.
+const GRIDS = {
+  multiply: {
+    title: 'Times tables',
+    note: 'Each square is one fact, both ways around (7 × 8 and 8 × 7). It counts practice from every game. Tap or hover a square for details.',
+    corner: '×',
+    rows: Array.from({ length: MAX_FACTOR + 1 }, (_, i) => i),
+    key: factKey,
+    text: (a, b) => `${a} × ${b} = ${a * b}`,
+    speak: (a, b) => `${a} times ${b}`,
+  },
+  divide: {
+    title: 'Division facts',
+    note: 'Each square is one division fact. The row is the number you divide by, the column is the answer: row 8, column 7 is 56 ÷ 8 = 7. Tap or hover a square for details.',
+    corner: '÷',
+    rows: Array.from({ length: MAX_FACTOR }, (_, i) => i + 1),
+    key: divFactKey,
+    text: (divisor, quotient) => `${divisor * quotient} ÷ ${divisor} = ${quotient}`,
+    speak: (divisor, quotient) => `${divisor * quotient} divided by ${divisor}`,
+  },
+};
+let gridSubject = 'multiply';
 const RECENT_SHOWN = 25;
 const SHAKY_SHOWN = 10;
 
@@ -71,8 +103,8 @@ function renderTiles(stats, state) {
   const first = games.reduce((sum, g) => sum + g.first, 0);
   const ms = games.reduce((sum, g) => sum + g.ms, 0);
   const today = stats.days[dayKey(Date.now())];
-  const totalFacts = ((MAX_FACTOR + 1) * (MAX_FACTOR + 2)) / 2;
-  const mastered = Object.values(stats.facts).filter((f) => factStatus(f) === 'mastered').length;
+  const mastered = (division) => Object.entries(stats.facts)
+    .filter(([key, fact]) => isDivFactKey(key) === division && factStatus(fact) === 'mastered').length;
   const fieldsDone = state.field;
 
   const tiles = [
@@ -80,7 +112,7 @@ function renderTiles(stats, state) {
     { label: 'Right on the first try', value: percent(first, problems), sub: problems ? `${first} of ${problems}` : '' },
     { label: 'Time practicing', value: minutes(ms), sub: `today: ${minutes(today?.ms ?? 0)}` },
     { label: 'Days played', value: Object.keys(stats.days).length },
-    { label: 'Facts mastered', value: mastered, sub: `of ${totalFacts} (times tables 0–10)` },
+    { label: 'Facts mastered', value: `× ${mastered(false)} · ÷ ${mastered(true)}`, sub: `of ${TIMES_FACTS} × and ${DIVISION_FACTS} ÷ facts` },
     { label: 'Bunnies met', value: totalMet(state), sub: fieldsDone ? `${fieldsDone} full field${fieldsDone === 1 ? '' : 's'} of ${FIELD_SIZE}` : `in the first field` },
   ];
   $('gu-tiles').innerHTML = tiles.map((t) => `
@@ -94,7 +126,7 @@ function renderTiles(stats, state) {
 // ---------- Times-table grid ----------
 
 function factDetail(a, b, fact) {
-  const heading = `${a} × ${b} = ${a * b}`;
+  const heading = GRIDS[gridSubject].text(a, b);
   const status = factStatus(fact);
   if (status === 'new') return `${heading} · hasn’t come up yet.`;
   const parts = [`${fact.first} right on the first try`];
@@ -107,16 +139,24 @@ function renderGrid(stats) {
   $('gu-legend').innerHTML = ['mastered', 'learning', 'shaky', 'new'].map((key) =>
     `<span class="gu-legend-item"><span class="fact-cell status-${key}" aria-hidden="true">${STATUS[key].symbol}</span>${STATUS[key].label}</span>`).join('');
 
+  const grid = GRIDS[gridSubject];
+  $('grid-title').textContent = grid.title;
+  $('grid-note').textContent = grid.note;
+  for (const button of $('grid-switch').querySelectorAll('button')) {
+    button.setAttribute('aria-pressed', String(button.dataset.subject === gridSubject));
+  }
+
   const header = Array.from({ length: MAX_FACTOR + 1 }, (_, b) => `<span class="fact-head" role="columnheader">${b}</span>`).join('');
-  const rows = Array.from({ length: MAX_FACTOR + 1 }, (_, a) => {
+  const rows = grid.rows.map((a) => {
     const cells = Array.from({ length: MAX_FACTOR + 1 }, (_, b) => {
-      const status = factStatus(stats.facts[factKey(a, b)]);
+      const status = factStatus(stats.facts[grid.key(a, b)]);
       return `<button type="button" class="fact-cell status-${status}" role="gridcell" data-a="${a}" data-b="${b}"
-        aria-label="${a} times ${b}: ${STATUS[status].label}">${STATUS[status].symbol}</button>`;
+        aria-label="${grid.speak(a, b)}: ${STATUS[status].label}">${STATUS[status].symbol}</button>`;
     }).join('');
     return `<span class="fact-head" role="rowheader">${a}</span>${cells}`;
   }).join('');
-  $('fact-grid').innerHTML = `<span class="fact-head corner" aria-hidden="true">×</span>${header}${rows}`;
+  $('fact-grid').innerHTML = `<span class="fact-head corner" aria-hidden="true">${grid.corner}</span>${header}${rows}`;
+  $('fact-grid').setAttribute('aria-label', grid.title);
 }
 
 function showFact(cell) {
@@ -124,7 +164,7 @@ function showFact(cell) {
   const a = Number(cell.dataset.a);
   const b = Number(cell.dataset.b);
   const stats = loadStats(storage);
-  $('fact-detail').textContent = factDetail(a, b, stats.facts[factKey(a, b)]);
+  $('fact-detail').textContent = factDetail(a, b, stats.facts[GRIDS[gridSubject].key(a, b)]);
   for (const other of $('fact-grid').querySelectorAll('.selected')) other.classList.remove('selected');
   cell.classList.add('selected');
 }
@@ -141,11 +181,13 @@ function renderShaky(stats) {
     return;
   }
   $('gu-shaky').innerHTML = `<ul class="gu-shaky">${shaky.map(([key, fact]) => {
-    const [a, b] = key.split('x').map(Number);
+    const division = isDivFactKey(key);
+    const [a, b] = key.replace('d', '').split('x').map(Number);
+    const text = division ? GRIDS.divide.text(a, b) : GRIDS.multiply.text(a, b);
     const lastFew = fact.history.slice(-MASTERED_STREAK);
     const needed = lastFew.replace(/f/g, '').length;
     const note = lastFew.length === 1 ? 'needed help the one time it came up' : `needed help ${needed} of the last ${lastFew.length} times`;
-    return `<li><strong>${a} × ${b} = ${a * b}</strong> <span class="gu-muted">${note}</span></li>`;
+    return `<li><strong>${text}</strong> <span class="gu-muted">${note}</span></li>`;
   }).join('')}</ul>`;
 }
 
@@ -210,6 +252,13 @@ $('fact-grid').addEventListener('pointerover', (event) => {
   if (event.pointerType === 'mouse') showFact(event.target.closest('.fact-cell'));
 });
 $('fact-grid').addEventListener('focusin', (event) => showFact(event.target.closest('.fact-cell')));
+$('grid-switch').addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-subject]');
+  if (!button || button.dataset.subject === gridSubject) return;
+  gridSubject = button.dataset.subject;
+  $('fact-detail').textContent = 'Tap a square to see how that fact is going.';
+  renderGrid(loadStats(storage));
+});
 $('gu-clear').addEventListener('click', () => {
   if (!window.confirm('Clear the practice history on this device? Bunnies and carrots stay.')) return;
   clearStats(storage);
@@ -218,5 +267,7 @@ $('gu-clear').addEventListener('click', () => {
 });
 // Refresh if the game is being played in another tab.
 window.addEventListener('storage', render);
+// Always load the newest version together (see sw.js).
+navigator.serviceWorker?.register('sw.js').catch(() => {});
 
 render();

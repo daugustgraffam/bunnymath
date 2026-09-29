@@ -25,8 +25,14 @@
     <section class="gu-tiles" id="gu-tiles" aria-label="Summary"></section>
 
     <section class="gu-card">
-      <h2>Times tables</h2>
-      <p class="gu-note">Each square is one fact, both ways around (7 × 8 and 8 × 7). It counts practice from every game. Tap or hover a square for details.</p>
+      <div class="gu-card-head">
+        <h2 id="grid-title">Times tables</h2>
+        <div id="grid-switch" class="gu-switch" role="group" aria-label="Which facts to show">
+          <button type="button" data-subject="multiply" aria-pressed="true">× Multiplication</button>
+          <button type="button" data-subject="divide" aria-pressed="false">÷ Division</button>
+        </div>
+      </div>
+      <p class="gu-note" id="grid-note">Each square is one fact, both ways around (7 × 8 and 8 × 7). It counts practice from every game. Tap or hover a square for details.</p>
       <div class="gu-legend" id="gu-legend"></div>
       <div class="fact-grid-wrap"><div class="fact-grid" id="fact-grid" role="grid" aria-label="Times table facts, 0 to 10"></div></div>
       <p class="fact-detail" id="fact-detail" aria-live="polite">Tap a square to see how that fact is going.</p>

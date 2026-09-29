@@ -9,7 +9,10 @@ counts in multiples of 25 (`2 × 25 + 7 = 57`).
 
 No build step and no dependencies — plain HTML, CSS and JavaScript modules.
 
-The live site deploys from `main` via GitHub Pages; every push updates it.
+The live site deploys from `main` via GitHub Pages; every push updates it. A small
+service worker (`sw.js`) makes every load check for the newest files first, so a
+browser never mixes an old cached page with new code after an update, and the game
+still opens offline with the last version it loaded.
 
 ## For grown-ups
 
@@ -74,6 +77,25 @@ npm test
   up ("each" → ×, two same-kind amounts joined by "and" → +). Two question types
   practice just that choice: "which expression matches the story?" and "after the
   ( ), what's next?" (the sign outside the parentheses decides)
+
+### Division (beginning, no remainders)
+
+A **× Multiplication / ÷ Division** switch on the meadow picks which games show;
+carrots, fields and bunnies met are shared.
+
+- **Share the Carrots** — equal sharing: deal carrots one at a time to each bunny
+  until the pile is gone, then count one plate (12 ÷ 3 = 4 each)
+- **Burrow Homes** — equal groups: fill burrows with 4 bunnies each until everyone
+  has a home, then count the burrows (12 ÷ 4 = 3 burrows)
+- **Hop Back** — repeated subtraction: hop back by 4 from 12 to 0 on a number line
+  and count the hops
+- **Fact Families** — division undoes multiplication: a fact triangle and array;
+  `3 × ▢ = 12, so 12 ÷ 3 = ▢`, fill in all four family facts, pick the helper fact
+- **Quick ÷ Facts** — division facts within 100, hints that "think multiplication"
+  (`8 × ▢ = 56`), plus the ÷ 1, 0 ÷ n and n ÷ n rules
+
+The grown-up page has a separate division facts grid (12 ÷ 3 and 12 ÷ 4 are
+different facts to learn).
 
 Every mode gives a 3-step hint ladder: a nudge, then a visual (skip-count totals or
 a flip), then the answer. First-try answers earn 2 carrots; answers after a hint earn 1.

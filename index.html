@@ -50,7 +50,11 @@
           <p id="grid-caption" class="grid-caption"></p>
         </div>
       </div>
-      <h2 class="picker-title">Pick a game</h2>
+      <div id="subject-switch" class="subject-switch" role="radiogroup" aria-label="What to practice">
+        <button type="button" role="radio" data-subject="multiply" aria-checked="true"><span class="subject-sign">×</span> Multiplication</button>
+        <button type="button" role="radio" data-subject="divide" aria-checked="false"><span class="subject-sign">÷</span> Division</button>
+      </div>
+      <h2 id="picker-title" class="picker-title">Pick a game</h2>
       <div id="mode-picker" class="mode-picker"></div>
     </section>
 

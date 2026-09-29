@@ -50,6 +50,10 @@ body.grownups {
 
 .gu-card { margin-bottom: 16px; padding: 18px 20px; background: var(--cream); border-radius: 20px; }
 .gu-card h2 { margin: 0 0 8px; font-size: 1.3rem; }
+.gu-card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.gu-switch { display: inline-flex; margin-bottom: 8px; border: 2px solid var(--ink-soft); border-radius: 999px; overflow: hidden; }
+.gu-switch button { padding: 6px 14px; font-size: 0.95rem; background: #fff; border: none; }
+.gu-switch button[aria-pressed="true"] { color: #fff; background: var(--ink-soft); }
 
 /* Times-table grid: status colors always come with a symbol and a legend label */
 .gu-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 12px; font-size: 0.95rem; }

@@ -24,6 +24,14 @@ export function factKey(a, b) {
   return `${Math.min(a, b)}x${Math.max(a, b)}`;
 }
 
+// Division facts keep their order: 12 ÷ 3 and 12 ÷ 4 are different facts to learn.
+// Stored by divisor and quotient: 56 ÷ 8 = 7 is "d8x7".
+export function divFactKey(divisor, quotient) {
+  return `d${divisor}x${quotient}`;
+}
+
+export const isDivFactKey = (key) => key.startsWith('d');
+
 // Local calendar day, YYYY-MM-DD.
 export function dayKey(time) {
   const d = new Date(time);
@@ -36,16 +44,20 @@ export function newStats() {
 
 // Records one finished problem.
 //   mode: game id; text: short description ("7 × 8"); facts: [[a, b], …] it exercised
+//   subject: 'multiply' (facts are [a, b]) or 'divide' (facts are [divisor, quotient])
 //   misses: wrong tries before the right answer; tries: the wrong answers, as text
 //   bonus: smart-pick carrots; ms: time on the problem; now: when it was answered
-export function recordProblem(stats, { mode, text, facts, misses, tries = [], bonus = 0, ms = 0, now = Date.now() }) {
+export function recordProblem(stats, {
+  mode, subject = 'multiply', text, facts, misses, tries = [], bonus = 0, ms = 0, now = Date.now(),
+}) {
   const outcome = outcomeOf(misses);
   const first = outcome === 'first' ? 1 : 0;
   const playMs = Math.min(Math.max(ms, 0), MAX_PROBLEM_MS);
+  const keyOf = subject === 'divide' ? divFactKey : factKey;
 
   const seenKeys = new Set();
   for (const [a, b] of facts) {
-    const key = factKey(a, b);
+    const key = keyOf(a, b);
     if (seenKeys.has(key)) continue;
     seenKeys.add(key);
     const fact = stats.facts[key] ?? { seen: 0, first: 0, helped: 0, shown: 0, last: 0, history: '' };

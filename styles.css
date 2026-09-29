@@ -833,6 +833,86 @@ button.fence-gap { cursor: col-resize; }
   color: var(--carrot-dark);
 }
 
+/* ---------- Division games ---------- */
+
+/* Words next to an answer box ("Each bunny gets ▢") */
+.equation .eq-label { font-size: 1.7rem; }
+.equation.compact:has(.eq-label) { align-items: center; }
+
+/* Share the Carrots: a pile, and a plate under each bunny */
+.share-scene { gap: 16px; }
+.carrot-pile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 380px;
+  min-height: 36px;
+  padding: 10px 14px;
+  background: #8d6143;
+  border: 3px solid #6b4730;
+  border-radius: 40px 40px 16px 16px;
+}
+.carrot-pile:empty::after { content: "All shared!"; color: #fff; font-weight: bold; }
+.carrot-pile .carrot, .share-plate .carrot { width: 22px; height: 22px; display: block; }
+.share-seats { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.share-seat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.share-bunny .mini-bunny { width: 44px; height: 52px; display: block; }
+.share-plate {
+  display: grid;
+  grid-template-columns: repeat(3, 22px);
+  gap: 2px;
+  justify-content: center;
+  min-width: 92px;
+  min-height: 40px;
+  padding: 8px;
+  background: #fff;
+  border: 3px solid #d9cbbd;
+  border-radius: 50%;
+}
+.share-plate .dealt { animation: pop-in 0.35s ease-out; }
+
+/* Burrow Homes: a line of bunnies waiting, burrows filling up */
+.homes-scene { gap: 14px; }
+.waiting-bunnies {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 460px;
+  min-height: 30px;
+}
+.waiting-bunnies:empty::after { content: "Everyone has a home!"; font-weight: bold; color: var(--good); }
+.waiting-bunnies .mini-bunny, .home-burrow .mini-bunny { width: 24px; height: 28px; display: block; }
+.home-burrow { grid-template-columns: repeat(3, 24px); animation: pop-in 0.35s ease-out; }
+
+/* Hop Back: a number line with hop arcs */
+.hop-scene { width: 100%; }
+.number-line { width: 100%; max-width: 680px; height: auto; overflow: visible; }
+.nl-axis { stroke: #6b4730; stroke-width: 3; }
+.nl-major { stroke: #6b4730; stroke-width: 3; }
+.nl-minor { stroke: #b99b83; stroke-width: 1.5; }
+.nl-label { font-size: 16px; font-weight: bold; fill: var(--ink); text-anchor: middle; }
+.nl-hop { fill: none; stroke: var(--carrot); stroke-width: 4; stroke-linecap: round; animation: pop-in 0.3s ease-out; }
+.nl-bunny { transition: transform 0.4s ease-in-out; }
+
+/* Fact Families: the fact triangle next to the array */
+.family-picture { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 18px 28px; }
+.fact-triangle { width: 170px; height: auto; }
+.ft-number { font-size: 30px; font-weight: bold; fill: var(--ink); text-anchor: middle; }
+.ft-top { font-size: 34px; fill: var(--carrot-dark); }
+.ft-signs { font-size: 16px; fill: var(--ink-soft); text-anchor: middle; }
+.family-array { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+/* Picker icons */
+.share-icon, .homes-icon { display: flex; align-items: center; gap: 4px; }
+.share-icon .mini-bunny { width: 30px; height: 35px; }
+.share-icon .carrot { width: 20px; height: 20px; }
+.homes-icon .burrow { grid-template-columns: repeat(2, 20px); min-height: 0; padding: 6px 8px; }
+.homes-icon .mini-bunny { width: 20px; height: 24px; }
+.mode-icon .hop-icon { width: 90px; height: 40px; }
+.mode-icon .fact-triangle { width: 70px; }
+
 /* Practice Test pictures (.qp): smaller items so a whole story fits */
 
 .qp { gap: 8px; }
@@ -961,6 +1041,25 @@ button.fence-gap { cursor: col-resize; }
 /* ---------- Mode picker ---------- */
 
 .picker-title { margin: 0 0 12px; font-size: 1.6rem; }
+
+/* × / ÷ switch: which games the meadow shows */
+.subject-switch {
+  display: inline-flex;
+  margin: 0 auto 14px;
+  padding: 5px;
+  background: var(--cream);
+  border: 3px solid var(--carrot);
+  border-radius: 999px;
+}
+.subject-switch button {
+  padding: 10px 22px;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  border-radius: 999px;
+}
+.subject-switch button.on { color: #fff; background: var(--carrot); box-shadow: 0 3px 0 var(--carrot-dark); }
+.subject-sign { font-weight: bold; font-size: 1.4rem; }
 
 .mode-picker {
   display: grid;

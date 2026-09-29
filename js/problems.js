@@ -99,3 +99,41 @@ export function hintFor({ a, b, answer }, misses) {
   }
   return `${a} × ${b} means ${a} groups of ${b}. Try skip counting by ${b}!`;
 }
+
+// ---------- Division ----------
+//
+// Beginning division has no remainders: every problem is a multiplication fact
+// run backwards, dividend ÷ divisor = quotient where quotient × divisor = dividend.
+
+// A round of division facts. Divide-by-1, 0 ÷ n and n ÷ n are quick rules, so at
+// most `easyLimit` of them per round.
+export function makeDivRound(count, {
+  divisorMin = 1, divisorMax = 10, quotientMin = 0, quotientMax = 10, easyLimit = 1, rand = Math.random,
+} = {}) {
+  let easy = 0;
+  return uniquePairs(count, {
+    aMin: divisorMin,
+    aMax: divisorMax,
+    bMin: quotientMin,
+    bMax: quotientMax,
+    rand,
+    accept: (divisor, quotient) => {
+      if (divisor > 1 && quotient > 1) return true;
+      if (easy >= easyLimit) return false;
+      easy += 1;
+      return true;
+    },
+  }).map(({ a: divisor, b: quotient }) => ({ divisor, quotient, dividend: divisor * quotient, answer: quotient }));
+}
+
+// Hint ladder for a ÷ fact: think multiplication, then count by the divisor, then the answer.
+export function divHint({ dividend, divisor, quotient }, misses) {
+  if (misses >= 3) {
+    return `${dividend} ÷ ${divisor} = ${quotient}, because ${quotient} × ${divisor} = ${dividend}. Type ${quotient} to keep going.`;
+  }
+  if (dividend === 0) return 'Zero carrots shared out is zero for everyone!';
+  if (divisor === 1) return 'Dividing by 1 means one big group. Everything is in it!';
+  if (dividend === divisor) return 'Any number divided by itself is 1.';
+  if (misses === 2) return `Count by ${divisor}s up to ${dividend}, holding up a finger for each count. How many fingers?`;
+  return `Think multiplication: ${divisor} × ▢ = ${dividend}.`;
+}
