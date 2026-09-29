@@ -179,6 +179,61 @@ export function clipboardSVG() {
 </svg>`;
 }
 
+// Small story items for Practice Test pictures (see itemSVG).
+function berrySVG() {
+  return `<svg class="item" viewBox="0 0 20 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 5 q2 -4 5 -3" fill="none" stroke="#4caf50" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="7" cy="12" r="4.2" fill="#7b4fb3"/><circle cx="13" cy="12" r="4.2" fill="#8e5cc7"/><circle cx="10" cy="7.5" r="4.2" fill="#9b6fd1"/>
+  <circle cx="8.8" cy="6.3" r="1.1" fill="#fff" fill-opacity=".6"/>
+</svg>`;
+}
+
+function muffinSVG() {
+  return `<svg class="item" viewBox="0 0 20 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 10 L6 18 H14 L16 10 Z" fill="#e8b24d" stroke="${OUTLINE}" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M3 10.5 Q3 3 10 3 Q17 3 17 10.5 Z" fill="#9c6644" stroke="${OUTLINE}" stroke-width="1.2" stroke-linejoin="round"/>
+  <circle cx="8" cy="7" r="1" fill="#f7a1b5"/><circle cx="12" cy="6.5" r="1" fill="#fff6a8"/>
+</svg>`;
+}
+
+function flowerSVG() {
+  return `<svg class="item" viewBox="0 0 20 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  ${[0, 72, 144, 216, 288].map((deg) => {
+    const rad = (deg * Math.PI) / 180;
+    return `<circle cx="${(10 + 4.6 * Math.cos(rad)).toFixed(1)}" cy="${(10 + 4.6 * Math.sin(rad)).toFixed(1)}" r="3.6" fill="#f48fb1"/>`;
+  }).join('')}
+  <circle cx="10" cy="10" r="3" fill="#ffd166"/>
+</svg>`;
+}
+
+function coinSVG() {
+  return `<svg class="item" viewBox="0 0 20 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="10" cy="10" r="8.5" fill="#f2c94c" stroke="#b8860b" stroke-width="1.5"/>
+  <text x="10" y="14" font-size="11" font-weight="bold" text-anchor="middle" fill="#8a6100" font-family="Arial Rounded MT Bold, Trebuchet MS, sans-serif">$</text>
+</svg>`;
+}
+
+// One hop: a little paw print.
+function hopSVG() {
+  return `<svg class="item" viewBox="0 0 20 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="10" cy="13" rx="4.5" ry="4" fill="#b97d50"/>
+  <circle cx="5" cy="7.5" r="2" fill="#b97d50"/><circle cx="10" cy="5" r="2" fill="#b97d50"/><circle cx="15" cy="7.5" r="2" fill="#b97d50"/>
+</svg>`;
+}
+
+// A small picture of one story item: carrot, bunny, berry, muffin, flower, coin or hop.
+export function itemSVG(kind) {
+  switch (kind) {
+    case 'bunny': return miniBunnySVG();
+    case 'berry': return berrySVG();
+    case 'muffin': return muffinSVG();
+    case 'flower': return flowerSVG();
+    case 'coin': return coinSVG();
+    case 'hop': return hopSVG();
+    default: return carrotSVG();
+  }
+}
+
 export function carrotSVG() {
   return `<svg class="carrot" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
   <path d="M12 8 Q9 2 7 3 M12 8 Q12 1 13 1 M12 8 Q15 2 17 3" fill="none" stroke="#4caf50" stroke-width="2" stroke-linecap="round"/>

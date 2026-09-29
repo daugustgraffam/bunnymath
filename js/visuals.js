@@ -1,6 +1,6 @@
 // Markup builders shared by the game modes: answer boxes, burrows, carrot patches.
 
-import { carrotSVG, crateSVG, miniBunnySVG } from './bunnies.js';
+import { carrotSVG, crateSVG, itemSVG, miniBunnySVG } from './bunnies.js';
 
 const BURROW_FURS = ['#d6ac82', '#f6f1ea', '#efc57e', '#9a8f88', '#b97d50', '#d8d0e8'];
 
@@ -74,4 +74,33 @@ export function cratesHTML(groups, crates, { totals = false, showLast = false, u
     `<div class="crate-slot"><div class="crate-group">${crateSVG().repeat(crates)}</div>${runningTotal(g, groups, crates * unit, { totals, showLast })}</div>`);
   const label = `${plural(groups, 'group')} of ${plural(crates, 'crate')}, 10 carrots in each crate`;
   return `<div class="crate-groups" role="img" aria-label="${label}">${groupMarkup.join('')}</div>`;
+}
+
+// ---------- Story pictures (Practice Test) ----------
+
+const itemsOf = (n, item) => itemSVG(item).repeat(n);
+
+// Boxes inside boxes: `outer` big boxes, each holding `middle` rows of `inner` items.
+// The picture for a three-number story like beds × rows × carrots.
+export function nestedGroupsHTML(outer, middle, inner, item, label) {
+  const row = `<div class="nest-mid">${itemsOf(inner, item)}</div>`;
+  const box = `<div class="nest-outer">${row.repeat(middle)}</div>`;
+  return `<div class="nest" role="img" aria-label="${label}">${box.repeat(outer)}</div>`;
+}
+
+// `count` boxes (baskets, bags…) with `each` items inside.
+export function groupBoxesHTML(count, each, item, label, { extraClass = '' } = {}) {
+  const box = `<div class="group-box ${extraClass}">${itemsOf(each, item)}</div>`;
+  return `<div class="group-boxes" role="img" aria-label="${label}">${box.repeat(count)}</div>`;
+}
+
+// `units` rows (laps, bags, garden rows…) of `each` items, one row per unit.
+export function unitRowsHTML(units, each, item) {
+  return `<div class="unit-rows">${`<div class="unit-row">${itemsOf(each, item)}</div>`.repeat(units)}</div>`;
+}
+
+// Pictures side by side joined by a sign: [{ html, caption }], '+'.
+export function joinedHTML(parts, sign, label) {
+  const shown = parts.map((part) => `<div class="joined-part">${part.html}${part.caption ? `<span class="joined-caption">${part.caption}</span>` : ''}</div>`);
+  return `<div class="joined" role="img" aria-label="${label}">${shown.join(`<span class="joined-sign" aria-hidden="true">${sign}</span>`)}</div>`;
 }

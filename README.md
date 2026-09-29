@@ -67,7 +67,9 @@ npm test
   the Distributive Property used correctly?", pick-all-that-work fact splits,
   rebuilding a big array from two smaller ones, three-factor and two-part word
   problems, and fill-in equations (doubles, combining, a 10s fact as two 5s).
-  Original questions with new numbers every time. Every question has an "Add or
+  Original questions with new numbers every time, each with a picture of how the
+  math is built in the story's own words (beds holding rows of carrots, two parts
+  joined by +, a whole patch beside its two pieces). Every question has an "Add or
   multiply?" rules card that opens after a miss, when story clue words also light
   up ("each" → ×, two same-kind amounts joined by "and" → +). Two question types
   practice just that choice: "which expression matches the story?" and "after the

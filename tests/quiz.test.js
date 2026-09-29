@@ -153,6 +153,41 @@ test('a miss on an add-or-multiply question points to the rule', () => {
   assert.match(quizHint(next, 1, { correct: false, wrong: ['choice'] }), /sign outside the \( \)/);
 });
 
+test('every kind of question has a picture with a caption', () => {
+  const seen = new Set();
+  for (let i = 0; i < 30; i++) {
+    for (const p of makeQuizRound()) {
+      const html = quiz.render(p);
+      assert.match(html, /class="picture quiz-picture/, p.kind);
+      assert.match(html, /class="picture-caption">[^<]+</, `${p.kind} caption`);
+      assert.doesNotMatch(html, /undefined|NaN/, `${p.kind}: ${html.slice(0, 200)}`);
+      seen.add(p.kind);
+    }
+  }
+  assert.equal(seen.size, KINDS.length);
+});
+
+test("story pictures use the story's own words and numbers", () => {
+  for (const p of many('threeFactor', 50)) {
+    const caption = quiz.render(p).match(/class="picture-caption">([^<]+)</)[1];
+    assert.match(caption, new RegExp(`^${p.a} \\w+ · ${p.b} \\w+ in each \\w+ · ${p.c} \\w+ in each \\w+$`), caption);
+  }
+  for (const p of many('wordSplit', 50)) {
+    const html = quiz.render(p);
+    assert.equal((html.match(/class="joined-part"/g) || []).length, 2, 'two parts');
+    assert.equal((html.match(/class="unit-row"/g) || []).length, p.x + p.y, 'one row per unit');
+  }
+});
+
+test('the break-apart picture shows the pieces the equation names', () => {
+  for (const p of many('distYesNo')) {
+    const html = quiz.render(p);
+    const labels = [...html.matchAll(/aria-label="(\d+) rows? of (\d+) carrots?"/g)].map((m) => `${m[1]}×${m[2]}`);
+    const pieces = p.form === 'left' ? [`${p.c}×${p.b}`, `${p.d}×${p.b}`] : [`${p.a}×${p.c}`, `${p.a}×${p.d}`];
+    assert.deepEqual(labels, [`${p.a}×${p.b}`, ...pieces], `${p.statement}`);
+  }
+});
+
 test('every question shows the Add or multiply? rules card', () => {
   for (const p of makeQuizRound()) assert.match(quiz.render(p), /<details class="rules">/);
 });
