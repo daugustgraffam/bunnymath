@@ -78,6 +78,15 @@ npm test
   practice just that choice: "which expression matches the story?" and "after the
   ( ), what's next?" (the sign outside the parentheses decides)
 
+- **Add or Multiply? Test** — 10 questions on choosing the operation:
+  expressions like `(4 × 2) + 3`, `5 + (3 × 6)`, `(2 + 3) × 4` solved in two steps
+  (the ( ) first, then the sign outside); one-step stories that are half adding,
+  half multiplying, where she picks + or × before solving; and three-number
+  stories `(a ▢ b) ▢ c` that can be × then +, + then ×, all + or all ×. Some
+  multiply stories contain "and" and some adding stories have three numbers, so
+  the clue that matters is equal groups ("each") vs. same-kind amounts. A miss
+  lights up the clue words, shows a picture and opens the rules card
+
 ### Division (beginning, no remainders)
 
 A **× Multiplication / ÷ Division** switch on the meadow picks which games show;

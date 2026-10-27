@@ -13,13 +13,14 @@ import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
 import quiz from './modes/quiz.js';
+import addtimes from './modes/addtimes.js';
 import share from './modes/share.js';
 import homes from './modes/homes.js';
 import hopback from './modes/hopback.js';
 import family from './modes/family.js';
 import divfacts from './modes/divfacts.js';
 
-const MODES = [facts, groups, flip, hutch, fence, crates, quiz, share, homes, hopback, family, divfacts];
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz, addtimes, share, homes, hopback, family, divfacts];
 const MAX_FACTOR = 10;
 const TIMES_FACTS = ((MAX_FACTOR + 1) * (MAX_FACTOR + 2)) / 2; // 0×0 … 10×10, each pair once
 const DIVISION_FACTS = MAX_FACTOR * (MAX_FACTOR + 1); // ÷1 … ÷10, answers 0 … 10

@@ -9,6 +9,7 @@ import hutch from './modes/hutch.js';
 import fence from './modes/fence.js';
 import crates from './modes/crates.js';
 import quiz from './modes/quiz.js';
+import addtimes from './modes/addtimes.js';
 import share from './modes/share.js';
 import homes from './modes/homes.js';
 import hopback from './modes/hopback.js';
@@ -22,7 +23,7 @@ import {
 
 // Games in the order they appear. A mode's `subject` ('multiply' unless it
 // says 'divide') decides which side of the × / ÷ switch it shows on.
-const MODES = [facts, groups, flip, hutch, fence, crates, quiz, share, homes, hopback, family, divfacts];
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz, addtimes, share, homes, hopback, family, divfacts];
 const SUBJECTS = ['multiply', 'divide'];
 const SUBJECT_KEY = 'bunnymath.subject';
 const subjectOf = (mode) => mode.subject ?? 'multiply';
@@ -441,7 +442,7 @@ function say(text) {
 }
 
 function focusFirst(el) {
-  el.querySelector('input:not(:disabled), button:not(:disabled)')?.focus();
+  el.querySelector('input:not([type="hidden"]):not(:disabled), button:not(:disabled)')?.focus();
 }
 
 function startRound(mode) {
@@ -510,6 +511,13 @@ function onAnswer(event) {
   const inputs = [...el.querySelectorAll('input:not(:disabled)')];
   const textBoxes = inputs.filter((input) => input.type === 'text');
   const checkboxes = inputs.filter((input) => input.type === 'checkbox');
+  // Hidden fields filled by a chooser (like + / ×) come first: picking the
+  // sign is the decision, the number comes after. They say what's missing themselves.
+  const unchosen = inputs.find((input) => input.type === 'hidden' && 'required' in input.dataset && input.value === '');
+  if (unchosen) {
+    say(unchosen.dataset.blankMessage ?? 'Fill in every box first!');
+    return;
+  }
   const blank = textBoxes.find((input) => input.value.trim() === '');
   if (blank) {
     say(textBoxes.length > 1 ? 'Fill in every box first!' : 'Type a number in the box first!');
@@ -586,7 +594,8 @@ function onCorrect(el, problem, result, submitter) {
     if (box.checked) box.closest('label')?.classList.add('correct');
   }
   if (submitter?.classList.contains('choice')) submitter.classList.add('correct');
-  for (const choice of el.querySelectorAll('.choice')) choice.disabled = true;
+  for (const choice of el.querySelectorAll('.choice, .op-choice')) choice.disabled = true;
+  for (const picker of el.querySelectorAll('.op-picker')) picker.classList.remove('wrong');
 
   const check = $('check-button');
   check.hidden = false;
@@ -604,16 +613,18 @@ function onCorrect(el, problem, result, submitter) {
 
 function onWrong(el, problem, result, submitter) {
   round.misses += 1;
-  for (const marked of el.querySelectorAll('input.wrong, label.wrong')) marked.classList.remove('wrong');
+  for (const marked of el.querySelectorAll('input.wrong, label.wrong, .op-picker.wrong')) marked.classList.remove('wrong');
   for (const name of result.wrong) {
     if (name === 'choice') {
       submitter.classList.add('wrong');
       submitter.disabled = true;
       continue;
     }
-    // A wrong checkbox marks its whole row; a wrong answer box marks the box.
+    // A wrong checkbox marks its whole row, a wrong + / × marks its chooser,
+    // and a wrong answer box marks the box.
     const input = el.querySelector(`input[name="${name}"]`);
-    const shown = input.type === 'checkbox' ? input.closest('label') ?? input : input;
+    const shown = input.type === 'checkbox' ? input.closest('label') ?? input
+      : input.type === 'hidden' ? input.closest('.op-picker') ?? input : input;
     shown.classList.add('wrong');
     animate(shown, 'shake');
   }
@@ -672,7 +683,7 @@ $('subject-switch').addEventListener('click', (event) => {
 $('answer-form').addEventListener('submit', onAnswer);
 $('problem').addEventListener('input', (event) => {
   event.target.classList.remove('wrong');
-  event.target.closest('label')?.classList.remove('wrong');
+  event.target.closest('label, .op-picker')?.classList.remove('wrong');
 });
 $('problem').addEventListener('focusin', (event) => {
   if (USE_NUMPAD && event.target.matches('input[type="text"]')) setActiveInput(event.target);

@@ -136,7 +136,7 @@ function makeBigArray(rand) {
 //
 // Each story also names its things (singular, plural) and an item icon, so its
 // picture and caption use the story's own words: a outer boxes holding b rows of c items.
-const THREE_FACTOR_STORIES = [
+export const THREE_FACTOR_STORIES = [
   {
     outer: ['bed', 'beds'], middle: ['row', 'rows'], item: ['carrot', 'carrots'], icon: 'carrot',
     text: ({ name, a, b, c }) => `${name} has ${a} garden beds. [×:Each bed] has ${b} rows. [×:Each row] has ${c} carrots. How many carrots are in the garden?`,
@@ -162,7 +162,7 @@ function makeThreeFactor(rand) {
 }
 
 // layout: how the groups are drawn — 'boxes' (baskets, bags), 'burrows', or 'rows'.
-const GROUP_STORIES = [
+export const GROUP_STORIES = [
   {
     group: ['basket', 'baskets'], item: ['carrot', 'carrots'], icon: 'carrot', layout: 'boxes',
     text: ({ name, a, b }) => `${name} has ${a} baskets. [×:Each basket] has ${b} carrots. How many carrots does ${name} have?`,
@@ -185,14 +185,14 @@ function makeWordGroups(rand) {
 
 // `unit` is singular; plural() adds the s ("1 lap", "3 laps"). `parts` name the
 // two times in the story, for the picture's labels.
-const SPLIT_STORIES = [
+export const SPLIT_STORIES = [
   { unit: 'row', item: ['carrot', 'carrots'], icon: 'carrot', parts: ['on Monday', 'on Tuesday'], text: ({ name, x, y, c }) => `[×:Each garden row] holds ${c} carrots. ${name} planted [+:${plural(x, 'row')} on Monday] and [+:${plural(y, 'row')} on Tuesday]. How many carrots did ${name} plant?` },
   { unit: 'lap', item: ['hop', 'hops'], icon: 'hop', parts: ['in the morning', 'after lunch'], text: ({ name, x, y, c }) => `[×:Each lap] around the meadow is ${c} hops. ${name} hopped [+:${plural(x, 'lap')} in the morning] and [+:${plural(y, 'lap')} after lunch]. How many hops is that?` },
   { unit: 'bag', item: ['dollar', 'dollars'], icon: 'coin', parts: ['on Saturday', 'on Sunday'], text: ({ name, x, y, c }) => `[×:Each bag] of carrot seeds costs $${c}. ${name} bought [+:${plural(x, 'bag')} on Saturday] and [+:${plural(y, 'bag')} on Sunday]. How many dollars did ${name} spend?` },
 ];
 
 // Equal groups plus a few extra: (a × b) + e.
-const EXTRA_STORIES = [
+export const EXTRA_STORIES = [
   {
     group: ['bag', 'bags'], item: ['carrot', 'carrots'], icon: 'carrot', layout: 'boxes', where: 'in a pocket',
     text: ({ name, a, b, e }) => `${name} has ${a} bags with ${b} carrots in [×:each bag]. ${name} also has [+:${e} more carrots] in a pocket. How many carrots does ${name} have?`,
@@ -491,35 +491,35 @@ function storyFor(problem) {
 // words: boxes of rows of items for three factors, two parts joined by + for a
 // two-part story, patches joined by + for a break-apart.
 
-const words = ([one, many], n) => plural(n, one, many);
+export const words = ([one, many], n) => plural(n, one, many);
 
-function quizPicture(content, caption) {
+export function quizPicture(content, caption) {
   return `<div class="picture quiz-picture qp">${content}<p class="picture-caption">${caption}</p></div>`;
 }
 
-function nestedPicture(a, b, c, s) {
+export function nestedPicture(a, b, c, s) {
   const caption = `${words(s.outer, a)} · ${words(s.middle, b)} in each ${s.outer[0]} · ${words(s.item, c)} in each ${s.middle[0]}`;
   return quizPicture(nestedGroupsHTML(a, b, c, s.icon, caption), caption);
 }
 
-function groupsHTML(count, each, s, label) {
+export function groupsHTML(count, each, s, label) {
   if (s.layout === 'burrows') return burrowsHTML(count, each, { item: 'bunny' });
   if (s.layout === 'rows') return `<div role="img" aria-label="${label}">${unitRowsHTML(count, each, s.icon)}</div>`;
   return groupBoxesHTML(count, each, s.icon, label);
 }
 
-function groupsPicture(count, each, s) {
+export function groupsPicture(count, each, s) {
   const caption = `${words(s.group, count)} · ${words(s.item, each)} in each ${s.group[0]}`;
   return quizPicture(groupsHTML(count, each, s, caption), caption);
 }
 
-function splitPicture({ x, y, c }, s) {
+export function splitPicture({ x, y, c }, s) {
   const part = (n, when) => ({ html: unitRowsHTML(n, c, s.icon), caption: `${plural(n, s.unit)} ${when}` });
   const caption = `${words(s.item, c)} in each ${s.unit}`;
   return quizPicture(joinedHTML([part(x, s.parts[0]), part(y, s.parts[1])], '+', caption), caption);
 }
 
-function extraPicture({ a, b, e }, s) {
+export function extraPicture({ a, b, e }, s) {
   const groups = { html: groupsHTML(a, b, s, `${words(s.group, a)} of ${b}`), caption: `${words(s.group, a)} of ${b}` };
   const extras = { html: groupBoxesHTML(1, e, s.icon, `${e} more`, { extraClass: 'loose' }), caption: `${e} more ${s.where}` };
   const caption = `${words(s.group, a)} with ${words(s.item, b)} in each, plus ${e} more`;
@@ -527,7 +527,7 @@ function extraPicture({ a, b, e }, s) {
 }
 
 // Two patches side by side, joined by +.
-function patchesPicture(parts, caption) {
+export function patchesPicture(parts, caption) {
   const shown = parts.map(([rows, cols]) => ({ html: patchHTML(rows, cols), caption: `${rows} × ${cols}` }));
   return quizPicture(joinedHTML(shown, '+', caption), caption);
 }
@@ -562,7 +562,7 @@ const NEXT_STEP_THINGS = { outer: ['box', 'boxes'], middle: ['row', 'rows'], ite
 const storyParagraph = (p) => `<p class="word-problem story">${clueText(story(p))}</p>`;
 
 // The "Add or multiply?" card under every question.
-const RULES = `
+export const RULES = `
   <details class="rules">
     <summary>Add or multiply? <span class="rules-tap">Tap for the rules</span></summary>
     <ol class="rules-list">
