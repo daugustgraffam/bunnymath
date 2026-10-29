@@ -203,12 +203,14 @@ export const EXTRA_STORIES = [
   },
 ];
 
-// Plain story text, or with the clue words highlighted and tagged × or +.
+// Plain story text, or with the clue words highlighted and tagged ×, + or ÷.
+const CLUE_JOBS = { '×': ['times', 'multiply'], '+': ['plus', 'add'], '÷': ['divide', 'divide'] };
+
 export function clueText(text, highlight = false) {
-  return text.replace(/\[([×+]):([^\]]+)\]/g, (_, sign, words) => {
+  return text.replace(/\[([×+÷]):([^\]]+)\]/g, (_, sign, words) => {
     if (!highlight) return words;
-    const job = sign === '×' ? 'times' : 'plus';
-    return `<mark class="clue clue-${job}">${words}<span class="clue-tag" aria-label="${sign === '×' ? 'multiply' : 'add'} clue">${sign}</span></mark>`;
+    const [job, name] = CLUE_JOBS[sign];
+    return `<mark class="clue clue-${job}">${words}<span class="clue-tag" aria-label="${name} clue">${sign}</span></mark>`;
   });
 }
 

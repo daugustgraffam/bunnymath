@@ -17,6 +17,7 @@ import homes from '../js/modes/homes.js';
 import hopback from '../js/modes/hopback.js';
 import family from '../js/modes/family.js';
 import divfacts from '../js/modes/divfacts.js';
+import divquiz from '../js/modes/divquiz.js';
 
 function fakeStorage() {
   const data = new Map();
@@ -102,7 +103,7 @@ test('history survives a save and load; bad data starts fresh', () => {
 });
 
 test('every game describes its problems and lists times-table facts within 0–10', () => {
-  for (const mode of [facts, groups, flip, hutch, fence, crates, quiz, addtimes, share, homes, hopback, family, divfacts]) {
+  for (const mode of [facts, groups, flip, hutch, fence, crates, quiz, addtimes, share, homes, hopback, family, divfacts, divquiz]) {
     for (let i = 0; i < 50; i++) {
       for (const problem of mode.makeRound(5)) {
         // Choose-a-route and fence problems get their route/split from the child.
@@ -111,7 +112,7 @@ test('every game describes its problems and lists times-table facts within 0–1
         const text = mode.describe(problem);
         assert.ok(typeof text === 'string' && text.length > 0, `${mode.id} describe`);
         const pairs = mode.facts(problem);
-        if (mode.id !== 'addtimes') assert.ok(pairs.length > 0, `${mode.id} facts`);
+        if (!['addtimes', 'divquiz'].includes(mode.id)) assert.ok(pairs.length > 0, `${mode.id} facts`);
         for (const [a, b] of pairs) {
           assert.ok(Number.isInteger(a) && Number.isInteger(b) && a >= 0 && b >= 0 && a <= 10 && b <= 10,
             `${mode.id} ${text}: fact ${a} × ${b}`);

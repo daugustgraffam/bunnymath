@@ -15,6 +15,7 @@ import homes from './modes/homes.js';
 import hopback from './modes/hopback.js';
 import family from './modes/family.js';
 import divfacts from './modes/divfacts.js';
+import divquiz from './modes/divquiz.js';
 import { loadStats, saveStats, recordProblem } from './stats.js';
 import {
   loadState, saveState, clearState, earnCarrots, feedVisitor, totalMet,
@@ -23,7 +24,7 @@ import {
 
 // Games in the order they appear. A mode's `subject` ('multiply' unless it
 // says 'divide') decides which side of the × / ÷ switch it shows on.
-const MODES = [facts, groups, flip, hutch, fence, crates, quiz, addtimes, share, homes, hopback, family, divfacts];
+const MODES = [facts, groups, flip, hutch, fence, crates, quiz, addtimes, share, homes, hopback, family, divfacts, divquiz];
 const SUBJECTS = ['multiply', 'divide'];
 const SUBJECT_KEY = 'bunnymath.subject';
 const subjectOf = (mode) => mode.subject ?? 'multiply';

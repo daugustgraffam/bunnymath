@@ -102,6 +102,17 @@ carrots, fields and bunnies met are shared.
   `3 × ▢ = 12, so 12 ÷ 3 = ▢`, fill in all four family facts, pick the helper fact
 - **Quick ÷ Facts** — division facts within 100, hints that "think multiplication"
   (`8 × ▢ = 56`), plus the ÷ 1, 0 ÷ n and n ÷ n rules
+- **Division Practice Test** — 12 questions in the style of a third-grade division
+  assessment, original and with new numbers every time: which × and ÷ facts match
+  a patch (the wrong ones are true facts that don't fit), one number that makes
+  `14 = ? × 2`, `56 ÷ 8 = ?` and `? × ? = 49` true, even and odd (1 left over,
+  finding 2 more, even/odd products, an example that proves a rule wrong), which
+  picture shows 12 in 6 equal groups, the 0 and 1 rules ("is 6 ÷ 0 = 6 right?"),
+  which numbers make 7 equal groups, bar diagrams, a two-part shopping problem
+  ($42 for 3 + 4 items, then how many more for $12), a story plus its fact
+  family, and three "multiply or divide?" stories where she picks × or ÷ first.
+  A "Multiply or divide?" rules card opens after a miss: know the total → divide,
+  need the total → multiply
 
 The grown-up page has a separate division facts grid (12 ÷ 3 and 12 ÷ 4 are
 different facts to learn).

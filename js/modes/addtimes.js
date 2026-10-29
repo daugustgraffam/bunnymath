@@ -252,14 +252,29 @@ export function addTimesHint(problem, misses, result) {
 
 // ---------- Markup ----------
 
-// A + / × chooser that fills a hidden answer field. The engine marks the whole
-// chooser when the sign is wrong.
-function opPicker(name) {
-  return `<span class="op-picker" role="group" aria-label="Pick + or ×">
-    <input type="hidden" name="${name}" value="" data-required data-blank-message="Pick + or × first!">
-    <button type="button" class="op-choice" data-op="+" aria-label="add">+</button>
-    <button type="button" class="op-choice" data-op="×" aria-label="multiply">×</button>
+// A + / × (or × / ÷) chooser that fills a hidden answer field. The engine marks
+// the whole chooser when the sign is wrong. wireOpPickers makes them clickable.
+const SIGN_NAMES = { '+': 'add', '×': 'multiply', '÷': 'divide' };
+
+export function opPicker(name, signs = ['+', '×']) {
+  const choose = `Pick ${signs.join(' or ')}`;
+  return `<span class="op-picker" role="group" aria-label="${choose}">
+    <input type="hidden" name="${name}" value="" data-required data-blank-message="${choose} first!">
+    ${signs.map((sign) => `<button type="button" class="op-choice" data-op="${sign}" aria-label="${SIGN_NAMES[sign]}">${sign}</button>`).join('')}
   </span>`;
+}
+
+export function wireOpPickers(el) {
+  for (const picker of el.querySelectorAll('.op-picker')) {
+    picker.addEventListener('click', (event) => {
+      const choice = event.target.closest('.op-choice');
+      if (!choice || choice.disabled) return;
+      const field = picker.querySelector('input[type="hidden"]');
+      field.value = choice.dataset.op;
+      for (const b of picker.querySelectorAll('.op-choice')) b.classList.toggle('on', b === choice);
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
 }
 
 export function storyText(p) {
@@ -385,17 +400,7 @@ export default {
   render: (p) => RENDERERS[p.kind](p) + RULES,
 
   mount(el, problem) {
-    // + / × choosers fill their hidden field.
-    for (const picker of el.querySelectorAll('.op-picker')) {
-      picker.addEventListener('click', (event) => {
-        const choice = event.target.closest('.op-choice');
-        if (!choice || choice.disabled) return;
-        const field = picker.querySelector('input[type="hidden"]');
-        field.value = choice.dataset.op;
-        for (const b of picker.querySelectorAll('.op-choice')) b.classList.toggle('on', b === choice);
-        field.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    }
+    wireOpPickers(el);
     // Step 1's answer is copied into step 2.
     if (problem.kind === 'expr') {
       const step1 = el.querySelector('input[name="step1"]');

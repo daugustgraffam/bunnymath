@@ -813,7 +813,7 @@ button.fence-gap { cursor: col-resize; }
   border-radius: 16px;
   cursor: pointer;
 }
-.check-option input { width: 30px; height: 30px; accent-color: var(--carrot); cursor: pointer; }
+.check-option input { flex-shrink: 0; width: 30px; height: 30px; accent-color: var(--carrot); cursor: pointer; }
 .check-option:has(input:checked) { border-color: var(--carrot); background: #fff4e6; }
 .check-option.wrong { border-color: var(--pink); background: #fdecef; }
 .check-option.correct { border-color: var(--good); background: #eaf7e6; }
@@ -1001,6 +1001,76 @@ button.fence-gap { cursor: col-resize; }
 .picture-slot { display: flex; justify-content: center; }
 .mode-icon-text.addtimes-icon { font-size: 2.6rem; letter-spacing: 6px; }
 
+/* Division Practice Test */
+.divquiz-icon { position: relative; display: inline-block; }
+.divquiz-sign {
+  position: absolute;
+  right: -14px;
+  bottom: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #fff;
+  background: var(--carrot);
+  border-radius: 50%;
+}
+.equation.compact.tight { font-size: 2.4rem; gap: 10px; }
+.equation-list { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.unknown { color: var(--carrot-dark); font-weight: bold; }
+.statement.claim { font-size: 1.7rem; }
+.word-problem.part-b { margin-top: 8px; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Bar diagram: the total on top, split into equal parts */
+/* Sized to the screen: a % width would shrink inside the centered picture. */
+.bar-model { display: flex; flex-direction: column; width: min(24em, calc(100vw - 72px)); }
+.bar-total {
+  position: relative;
+  height: 12px;
+  margin: 26px 2px 6px;
+  border: 3px solid var(--ink-soft);
+  border-bottom: none;
+}
+.bar-total-label {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+.bar-parts { display: flex; }
+.bar-part {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  color: var(--ink-soft);
+  background: #fff4e6;
+  border: 3px solid #c8955e;
+}
+.bar-part + .bar-part { border-left: none; }
+
+/* Picture answers: which groups show 12 ÷ 6? */
+.picture-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.picture-choices .choice { display: flex; align-items: center; justify-content: center; min-height: 110px; padding: 10px; }
+.picture-choices .group-boxes { gap: 6px; }
+.picture-choices .group-box { grid-template-columns: repeat(3, 16px); padding: 5px; }
+.group-box.found { background: #fff4e6; border: 3px dashed var(--carrot); }
+
 /* "Add or multiply?" rules card and clue words */
 
 .rules {
@@ -1037,11 +1107,13 @@ button.fence-gap { cursor: col-resize; }
 }
 .rule-badge.times { background: #ffd9a8; }
 .rule-badge.plus { background: #cdeec0; }
+.rule-badge.divide { background: #d8e6f7; }
 
 /* Clue words in a story: × clues warm, + clues green, each tagged with its sign */
 .clue { padding: 0 4px; border-radius: 6px; color: inherit; }
 .clue-times { background: #ffd9a8; }
 .clue-plus { background: #cdeec0; }
+.clue-divide { background: #d8e6f7; }
 .clue-tag {
   display: inline-flex;
   align-items: center;
